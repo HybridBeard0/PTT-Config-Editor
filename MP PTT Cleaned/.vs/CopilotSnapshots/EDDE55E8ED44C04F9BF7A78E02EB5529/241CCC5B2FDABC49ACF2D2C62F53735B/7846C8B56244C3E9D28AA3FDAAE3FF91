@@ -1,0 +1,1276 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Windows.Forms;
+
+namespace MP_PTT
+{
+    public partial class Form1 : Form
+    {
+        private Dictionary<string, List<ExfilInfo>> _allExfils = new Dictionary<string, List<ExfilInfo>>();
+        private PTTConfig _currentConfig;
+        private string _currentConfigPath;
+        private string _currentConfigText;
+        private static readonly Regex RgInitialOffraid = new Regex("^(\\s*initial_offraid_position\\s*:\\s*)(['\"]?)(?<v>[^'\",\r\n]+)(['\"]?)\\s*,?", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+        
+        public Form1()
+        {
+            InitializeComponent();
+            InitializeDataGrids();
+        }
+
+        private void InitializeDataGrids()
+        {
+            // Setup Traders DataGridView
+            if (dgvTraders != null)
+            {
+                dgvTraders.Columns.Clear();
+                dgvTraders.Columns.Add("TraderId", "Trader ID");
+                dgvTraders.Columns.Add("TraderName", "Trader Name");
+                dgvTraders.Columns.Add("AccessVia", "Access Via (comma separated)");
+                dgvTraders.Columns[0].Width = 250;
+                dgvTraders.Columns[1].Width = 150;
+                dgvTraders.Columns[2].Width = 400;
+            }
+
+            // Setup Stashes DataGridView
+            if (dgvStashes != null)
+            {
+                dgvStashes.Columns.Clear();
+                dgvStashes.Columns.Add("Category", "Category");  // NEW: Category column
+                dgvStashes.Columns.Add("StashId", "Stash ID");
+                dgvStashes.Columns.Add("Size", "Size");
+                dgvStashes.Columns.Add("AccessVia", "Access Via (comma separated)");
+                dgvStashes.Columns[0].Width = 120;  // Category
+                dgvStashes.Columns[1].Width = 350;  // Stash ID
+                dgvStashes.Columns[2].Width = 60;   // Size
+                dgvStashes.Columns[3].Width = 300;  // Access Via
+            }
+
+            // Setup Exfils DataGridView with View button
+            if (dgvExfils != null)
+            {
+                dgvExfils.Columns.Clear();
+                dgvExfils.Columns.Add("ExfilInfo", "Exfiltration Point");
+                dgvExfils.Columns.Add("Destination", "Leads To (Destinations)");
+                dgvExfils.Columns.Add("Map", "Map");
+                
+                // Add button column for viewing details
+                var btnColumn = new DataGridViewButtonColumn
+                {
+                    Name = "ViewDetails",
+                    HeaderText = "View",
+                    Text = "View Tree",
+                    UseColumnTextForButtonValue = true,
+                    Width = 80
+                };
+                dgvExfils.Columns.Add(btnColumn);
+                
+                dgvExfils.Columns[0].Width = 350;
+                dgvExfils.Columns[1].Width = 200;
+                dgvExfils.Columns[2].Width = 120;
+                
+                // Handle button click
+                dgvExfils.CellContentClick += DgvExfils_CellContentClick;
+            }
+
+            // Setup Infiltrations DataGridView with View button
+            if (dgvInfils != null)
+            {
+                dgvInfils.Columns.Clear();
+                dgvInfils.Columns.Add("InfilInfo", "Infiltration Point");
+                dgvInfils.Columns.Add("Map", "Map");
+                dgvInfils.Columns.Add("Spawns", "Spawn Points");
+                
+                // Add button column for viewing details
+                var btnColumn = new DataGridViewButtonColumn
+                {
+                    Name = "ViewSpawns",
+                    HeaderText = "View",
+                    Text = "View Tree",
+                    UseColumnTextForButtonValue = true,
+                    Width = 80
+                };
+                dgvInfils.Columns.Add(btnColumn);
+                
+                dgvInfils.Columns[0].Width = 300;
+                dgvInfils.Columns[1].Width = 120;
+                dgvInfils.Columns[2].Width = 250;
+                
+                // Handle button click
+                dgvInfils.CellContentClick += DgvInfils_CellContentClick;
+            }
+
+            // Setup Restrictions DataGridView
+            if (dgvRestrictions != null)
+            {
+                dgvRestrictions.Columns.Clear();
+                dgvRestrictions.Columns.Add("ItemId", "Item ID");
+                dgvRestrictions.Columns.Add("ItemName", "Item Name");
+                dgvRestrictions.Columns.Add("MaxValue", "Max Value");
+                dgvRestrictions.Columns[0].Width = 200;
+                dgvRestrictions.Columns[1].Width = 150;
+                dgvRestrictions.Columns[2].Width = 100;
+            }
+        }
+
+        private void DgvExfils_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            // Check if the clicked cell is the button column
+            if (e.ColumnIndex == dgvExfils.Columns["ViewDetails"].Index && e.RowIndex >= 0)
+            {
+                var row = dgvExfils.Rows[e.RowIndex];
+                var exfilInfo = row.Cells[0].Value?.ToString() ?? "";
+                var destinations = row.Cells[1].Value?.ToString() ?? "";
+                
+                using (var dialog = new ViewInfiltrationsDialog(exfilInfo, destinations))
+                {
+                    dialog.ShowDialog();
+                }
+            }
+        }
+
+        private void DgvInfils_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            // Check if the clicked cell is the button column
+            if (e.ColumnIndex == dgvInfils.Columns["ViewSpawns"].Index && e.RowIndex >= 0)
+            {
+                var row = dgvInfils.Rows[e.RowIndex];
+                var infilInfo = row.Cells[0].Value?.ToString() ?? "";
+                var spawnPoints = row.Cells[2].Value?.ToString() ?? "";
+                
+                using (var dialog = new ViewSpawnPointsDialog(infilInfo, spawnPoints))
+                {
+                    dialog.ShowDialog();
+                }
+            }
+        }
+        
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            // Load map data and populate infiltrations
+            LoadInfiltrations();
+            
+            // Load exfiltrations from MapData
+            LoadExfilsFromMapData();
+        }
+
+        private void LoadInfiltrations()
+        {
+            System.Diagnostics.Debug.WriteLine("===== LoadInfiltrations START =====");
+            
+            cmbBaseLocations.Items.Clear();
+            
+            var allMaps = MapDataProvider.GetAllMaps();
+            System.Diagnostics.Debug.WriteLine($"DEBUG: Got {allMaps.Count} maps from MapDataProvider");
+            
+            foreach (var map in allMaps.Values.OrderBy(m => m.MapDisplayName))
+            {
+                System.Diagnostics.Debug.WriteLine($"DEBUG: Processing map '{map.MapDisplayName}' with {map.Infiltrations.Count} infiltrations");
+                foreach (var infil in map.Infiltrations)
+                {
+                    var display = $"{map.MapDisplayName} - {infil}";
+                    cmbBaseLocations.Items.Add(new InfiltrationItem
+                    {
+                        Display = display,
+                        Key = infil,
+                        MapId = map.MapId
+                    });
+                }
+            }
+
+            if (cmbBaseLocations.Items.Count > 0)
+            {
+                cmbBaseLocations.DisplayMember = "Display";
+                cmbBaseLocations.SelectedIndex = 0;
+                System.Diagnostics.Debug.WriteLine($"DEBUG: Populated combo with {cmbBaseLocations.Items.Count} infiltrations");
+            }
+
+            // DON'T populate the checklists here - wait until config is loaded
+            // This allows us to use the actual location IDs from the config
+            
+            System.Diagnostics.Debug.WriteLine("===== LoadInfiltrations COMPLETE =====");
+        }
+        
+        private void PopulateChecklistsFromConfig()
+        {
+            if (_currentConfig == null)
+                return;
+                
+            System.Diagnostics.Debug.WriteLine("===== PopulateChecklistsFromConfig START =====");
+            
+            // Collect all unique location IDs from the entire config
+            var allLocationIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            
+            // Add from hideout_main_stash_access_via
+            if (_currentConfig.HideoutMainStashAccessVia != null)
+            {
+                foreach (var loc in _currentConfig.HideoutMainStashAccessVia)
+                    allLocationIds.Add(loc);
+            }
+            
+            // Add from traders
+            if (_currentConfig.TradersConfig != null)
+            {
+                foreach (var trader in _currentConfig.TradersConfig.Values)
+                {
+                    if (trader.AccessVia != null)
+                    {
+                        foreach (var loc in trader.AccessVia)
+                            allLocationIds.Add(loc);
+                    }
+                }
+            }
+            
+            // Add from stashes
+            if (_currentConfig.HideoutSecondaryStashes != null)
+            {
+                foreach (var stash in _currentConfig.HideoutSecondaryStashes)
+                {
+                    if (stash.AccessVia != null)
+                    {
+                        foreach (var loc in stash.AccessVia)
+                            allLocationIds.Add(loc);
+                    }
+                }
+            }
+            
+            // Add from exfiltrations (destinations)
+            if (_currentConfig.Exfiltrations != null)
+            {
+                foreach (var map in _currentConfig.Exfiltrations.Values)
+                {
+                    foreach (var exfil in map.Values)
+                    {
+                        foreach (var dest in exfil)
+                            allLocationIds.Add(dest);
+                    }
+                }
+            }
+            
+            // Add from offraid regen
+            if (_currentConfig.OffraidRegenConfig != null)
+            {
+                if (_currentConfig.OffraidRegenConfig.Health?.AccessViaList != null)
+                {
+                    foreach (var loc in _currentConfig.OffraidRegenConfig.Health.AccessViaList)
+                        allLocationIds.Add(loc);
+                }
+                if (_currentConfig.OffraidRegenConfig.Energy?.AccessViaList != null)
+                {
+                    foreach (var loc in _currentConfig.OffraidRegenConfig.Energy.AccessViaList)
+                        allLocationIds.Add(loc);
+                }
+                if (_currentConfig.OffraidRegenConfig.Hydration?.AccessViaList != null)
+                {
+                    foreach (var loc in _currentConfig.OffraidRegenConfig.Hydration.AccessViaList)
+                        allLocationIds.Add(loc);
+                }
+            }
+            
+            // Add from initial position
+            if (!string.IsNullOrEmpty(_currentConfig.InitialOffraidPosition))
+                allLocationIds.Add(_currentConfig.InitialOffraidPosition);
+            
+            var sortedLocations = allLocationIds.OrderBy(x => x).ToList();
+            System.Diagnostics.Debug.WriteLine($"DEBUG: Found {sortedLocations.Count} unique location IDs from config");
+            
+            // Populate all checklists with these location IDs
+            if (clbMainStashAccess != null)
+            {
+                clbMainStashAccess.Items.Clear();
+                foreach (var loc in sortedLocations)
+                    clbMainStashAccess.Items.Add(loc);
+                System.Diagnostics.Debug.WriteLine($"DEBUG: Populated clbMainStashAccess with {clbMainStashAccess.Items.Count} items");
+            }
+            
+            if (clbHealthAccess != null)
+            {
+                clbHealthAccess.Items.Clear();
+                foreach (var loc in sortedLocations)
+                    clbHealthAccess.Items.Add(loc);
+                System.Diagnostics.Debug.WriteLine($"DEBUG: Populated clbHealthAccess with {clbHealthAccess.Items.Count} items");
+            }
+            
+            if (clbEnergyAccess != null)
+            {
+                clbEnergyAccess.Items.Clear();
+                foreach (var loc in sortedLocations)
+                    clbEnergyAccess.Items.Add(loc);
+                System.Diagnostics.Debug.WriteLine($"DEBUG: Populated clbEnergyAccess with {clbEnergyAccess.Items.Count} items");
+            }
+            
+            if (clbHydrationAccess != null)
+            {
+                clbHydrationAccess.Items.Clear();
+                foreach (var loc in sortedLocations)
+                    clbHydrationAccess.Items.Add(loc);
+                System.Diagnostics.Debug.WriteLine($"DEBUG: Populated clbHydrationAccess with {clbHydrationAccess.Items.Count} items");
+            }
+            
+            System.Diagnostics.Debug.WriteLine("===== PopulateChecklistsFromConfig COMPLETE =====");
+        }
+
+        private void LoadExfilsFromMapData()
+        {
+            _allExfils.Clear();
+            
+            var allMaps = MapDataProvider.GetAllMaps();
+            foreach (var map in allMaps.Values)
+            {
+                var exfilList = new List<ExfilInfo>();
+                foreach (var exfil in map.Exfiltrations)
+                {
+                    exfilList.Add(new ExfilInfo
+                    {
+                        Identifier = exfil.Identifier,
+                        Description = exfil.Description,
+                        Map = map.MapDisplayName
+                    });
+                }
+                _allExfils[map.MapDisplayName] = exfilList;
+            }
+            
+            // Populate tree view
+            if (treeAvailableExfils != null)
+            {
+                treeAvailableExfils.Nodes.Clear();
+                
+                foreach (var kvp in _allExfils.OrderBy(x => x.Key))
+                {
+                    var mapNode = new TreeNode(kvp.Key);
+                    
+                    foreach (var exfil in kvp.Value.OrderBy(x => x.Description))
+                    {
+                        var exfilNode = new TreeNode(exfil.Description)
+                        {
+                            Tag = exfil.Identifier
+                        };
+                        mapNode.Nodes.Add(exfilNode);
+                    }
+                    
+                    treeAvailableExfils.Nodes.Add(mapNode);
+                }
+            }
+        }
+
+        private void btnOpenConfig_Click(object sender, EventArgs e)
+        {
+            // TEMPORARY DEBUG TEST
+            System.Diagnostics.Debug.WriteLine("\n\n");
+            System.Diagnostics.Debug.WriteLine("========================================");
+            System.Diagnostics.Debug.WriteLine("RUNNING PARSER TEST");
+            System.Diagnostics.Debug.WriteLine("========================================");
+            ParserTest.RunTests();
+            System.Diagnostics.Debug.WriteLine("========================================");
+            System.Diagnostics.Debug.WriteLine("END PARSER TEST");
+            System.Diagnostics.Debug.WriteLine("========================================\n\n");
+
+            using (var ofd = new OpenFileDialog())
+            {
+                ofd.Filter = "Config files|*.json;*.json5|All files|*.*";
+                ofd.Title = "Open config file to edit";
+                if (ofd.ShowDialog() != DialogResult.OK) return;
+                _currentConfigPath = ofd.FileName;
+                try
+                {
+                    _currentConfigText = File.ReadAllText(_currentConfigPath);
+                    _currentConfig = PTTConfigManager.LoadConfig(_currentConfigPath);
+                    
+                    lblCurrentConfig.Text = _currentConfigPath;
+                    
+                    // Update UI with loaded config
+                    PopulateUIFromConfig();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Failed to open config: " + ex.Message);
+                }
+            }
+        }
+
+        private void PopulateUIFromConfig()
+        {
+            if (_currentConfig == null)
+            {
+                System.Diagnostics.Debug.WriteLine("DEBUG PopulateUIFromConfig: _currentConfig is NULL!");
+                return;
+            }
+
+            System.Diagnostics.Debug.WriteLine("===== PopulateUIFromConfig START =====");
+
+            // First, populate the checklists with location IDs from the config
+            PopulateChecklistsFromConfig();
+
+            // Set initial offraid position
+            if (!string.IsNullOrEmpty(_currentConfig.InitialOffraidPosition))
+            {
+                txtBaseLocation.Text = _currentConfig.InitialOffraidPosition;
+                System.Diagnostics.Debug.WriteLine($"DEBUG: Set initial position to '{_currentConfig.InitialOffraidPosition}'");
+                
+                // Try to select matching item in combo
+                System.Diagnostics.Debug.WriteLine($"DEBUG: cmbBaseLocations has {cmbBaseLocations.Items.Count} items");
+                for (int i = 0; i < cmbBaseLocations.Items.Count; i++)
+                {
+                    var item = cmbBaseLocations.Items[i] as InfiltrationItem;
+                    if (item != null)
+                    {
+                        if (string.Equals(item.Key, _currentConfig.InitialOffraidPosition, StringComparison.OrdinalIgnoreCase))
+                        {
+                            cmbBaseLocations.SelectedIndex = i;
+                            System.Diagnostics.Debug.WriteLine($"DEBUG: Selected combo item at index {i}: '{item.Display}'");
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("DEBUG: InitialOffraidPosition is empty!");
+            }
+
+            // Populate Main Stash Access
+            if (clbMainStashAccess != null)
+            {
+                if (_currentConfig.HideoutMainStashAccessVia != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"DEBUG: Main stash access has {_currentConfig.HideoutMainStashAccessVia.Count} locations: {string.Join(", ", _currentConfig.HideoutMainStashAccessVia)}");
+                    System.Diagnostics.Debug.WriteLine($"DEBUG: clbMainStashAccess has {clbMainStashAccess.Items.Count} items");
+                    
+                    int checkedCount = 0;
+                    for (int i = 0; i < clbMainStashAccess.Items.Count; i++)
+                    {
+                        var item = clbMainStashAccess.Items[i].ToString();
+                        // Use case-insensitive comparison
+                        var isChecked = _currentConfig.HideoutMainStashAccessVia.Any(x => string.Equals(x, item, StringComparison.OrdinalIgnoreCase));
+                        clbMainStashAccess.SetItemChecked(i, isChecked);
+                        if (isChecked)
+                        {
+                            checkedCount++;
+                            System.Diagnostics.Debug.WriteLine($"DEBUG: ✓ Checked main stash access '{item}'");
+                        }
+                    }
+                    System.Diagnostics.Debug.WriteLine($"DEBUG: Total checked in Main Stash Access: {checkedCount}");
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("DEBUG: HideoutMainStashAccessVia is NULL!");
+                }
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("DEBUG: clbMainStashAccess control is NULL!");
+            }
+
+            // Populate Restrictions
+            dgvRestrictions.Rows.Clear();
+            if (_currentConfig.RestrictionsInRaid != null)
+            {
+                // Fallback names in case config doesn't have comments
+                var fallbackNames = new Dictionary<string, string>
+                {
+                    { "5449016a4bdc2d6f028b456f", "roubles" },
+                    { "5696686a4bdc2da3298b456a", "dollars" },
+                    { "569668774bdc2da2298b4568", "euros" },
+                    { "67449b6c89d5e1ddc603f504", "case key" },
+                    { "6740987b89d5e1ddc603f4f0", "locked case" }
+                };
+
+                foreach (var restriction in _currentConfig.RestrictionsInRaid)
+                {
+                    // Use ItemName from config if available, otherwise use fallback with lowercase
+                    var itemName = !string.IsNullOrEmpty(restriction.Value.ItemName) 
+                        ? restriction.Value.ItemName 
+                        : (fallbackNames.ContainsKey(restriction.Key) ? fallbackNames[restriction.Key] : "Unknown");
+                    
+                    dgvRestrictions.Rows.Add(restriction.Key, itemName, restriction.Value.Value);
+                }
+            }
+
+            // Populate Offraid Regen - use AccessViaList from config
+            if (_currentConfig.OffraidRegenConfig != null)
+            {
+                System.Diagnostics.Debug.WriteLine("DEBUG: Processing Offraid Regen Config...");
+                
+                // Health
+                if (clbHealthAccess != null && _currentConfig.OffraidRegenConfig.Health != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"DEBUG: clbHealthAccess has {clbHealthAccess.Items.Count} items");
+                    var healthList = _currentConfig.OffraidRegenConfig.Health.AccessViaList;
+                    if (healthList == null || healthList.Count == 0)
+                    {
+                        System.Diagnostics.Debug.WriteLine("DEBUG: Health AccessViaList is empty or null - unchecking all");
+                        // Uncheck all for wildcard or empty
+                        for (int i = 0; i < clbHealthAccess.Items.Count; i++)
+                        {
+                            clbHealthAccess.SetItemChecked(i, false);
+                        }
+                    }
+                    else
+                    {
+                        int checkedCount = 0;
+                        for (int i = 0; i < clbHealthAccess.Items.Count; i++)
+                        {
+                            var item = clbHealthAccess.Items[i].ToString();
+                            // Use case-insensitive comparison
+                            var isChecked = healthList.Any(x => string.Equals(x, item, StringComparison.OrdinalIgnoreCase));
+                            clbHealthAccess.SetItemChecked(i, isChecked);
+                            if (isChecked) checkedCount++;
+                        }
+                        System.Diagnostics.Debug.WriteLine($"DEBUG: Health access checked {checkedCount}/{healthList.Count} locations: {string.Join(", ", healthList)}");
+                    }
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("DEBUG: clbHealthAccess or Health config is NULL");
+                }
+
+                // Energy
+                if (clbEnergyAccess != null && _currentConfig.OffraidRegenConfig.Energy != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"DEBUG: clbEnergyAccess has {clbEnergyAccess.Items.Count} items");
+                    var energyList = _currentConfig.OffraidRegenConfig.Energy.AccessViaList;
+                    if (energyList == null || energyList.Count == 0)
+                    {
+                        System.Diagnostics.Debug.WriteLine("DEBUG: Energy AccessViaList is empty or null - unchecking all");
+                        for (int i = 0; i < clbEnergyAccess.Items.Count; i++)
+                        {
+                            clbEnergyAccess.SetItemChecked(i, false);
+                        }
+                    }
+                    else
+                    {
+                        int checkedCount = 0;
+                        for (int i = 0; i < clbEnergyAccess.Items.Count; i++)
+                        {
+                            var item = clbEnergyAccess.Items[i].ToString();
+                            // Use case-insensitive comparison
+                            var isChecked = energyList.Any(x => string.Equals(x, item, StringComparison.OrdinalIgnoreCase));
+                            clbEnergyAccess.SetItemChecked(i, isChecked);
+                            if (isChecked) checkedCount++;
+                        }
+                        System.Diagnostics.Debug.WriteLine($"DEBUG: Energy access checked {checkedCount}/{energyList.Count} locations: {string.Join(", ", energyList)}");
+                    }
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("DEBUG: clbEnergyAccess or Energy config is NULL");
+                }
+
+                // Hydration
+                if (clbHydrationAccess != null && _currentConfig.OffraidRegenConfig.Hydration != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"DEBUG: clbHydrationAccess has {clbHydrationAccess.Items.Count} items");
+                    var hydrationList = _currentConfig.OffraidRegenConfig.Hydration.AccessViaList;
+                    if (hydrationList == null || hydrationList.Count == 0)
+                    {
+                        System.Diagnostics.Debug.WriteLine("DEBUG: Hydration AccessViaList is empty or null - unchecking all");
+                        for (int i = 0; i < clbHydrationAccess.Items.Count; i++)
+                        {
+                            clbHydrationAccess.SetItemChecked(i, false);
+                        }
+                    }
+                    else
+                    {
+                        int checkedCount = 0;
+                        for (int i = 0; i < clbHydrationAccess.Items.Count; i++)
+                        {
+                            var item = clbHydrationAccess.Items[i].ToString();
+                            // Use case-insensitive comparison
+                            var isChecked = hydrationList.Any(x => string.Equals(x, item, StringComparison.OrdinalIgnoreCase));
+                            clbHydrationAccess.SetItemChecked(i, isChecked);
+                            if (isChecked) checkedCount++;
+                        }
+                        System.Diagnostics.Debug.WriteLine($"DEBUG: Hydration access checked {checkedCount}/{hydrationList.Count} locations: {string.Join(", ", hydrationList)}");
+                    }
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("DEBUG: clbHydrationAccess or Hydration config is NULL");
+                }
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("DEBUG: OffraidRegenConfig is NULL!");
+            }
+
+            System.Diagnostics.Debug.WriteLine("===== PopulateUIFromConfig: Base Tab Complete =====");
+
+            // Populate Traders
+            dgvTraders.Rows.Clear();
+            foreach (var trader in _currentConfig.TradersConfig.Values)
+            {
+                var accessVia = string.Join(", ", trader.AccessVia);
+                var traderName = PTTConfigManager.GetTraderName(trader.TraderId);
+                if (string.IsNullOrEmpty(trader.TraderName))
+                    trader.TraderName = traderName;
+                
+                dgvTraders.Rows.Add(trader.TraderId, trader.TraderName, accessVia);
+            }
+
+            // Populate Stashes with categorization and sorting
+            dgvStashes.Rows.Clear();
+            if (_currentConfig.HideoutSecondaryStashes != null)
+            {
+                System.Diagnostics.Debug.WriteLine($"DEBUG: Found {_currentConfig.HideoutSecondaryStashes.Count} stashes in config");
+                
+                // Create list of stash rows with categories
+                var stashRows = new List<Tuple<string, string, int, string>>();  // Category, ID, Size, AccessVia
+                
+                foreach (var stash in _currentConfig.HideoutSecondaryStashes)
+                {
+                    var accessVia = string.Join(", ", stash.AccessVia);
+                    var category = CategorizeStash(stash.Id, accessVia);
+                    stashRows.Add(new Tuple<string, string, int, string>(category, stash.Id, stash.Size, accessVia));
+                    System.Diagnostics.Debug.WriteLine($"DEBUG: Stash '{stash.Id}' categorized as '{category}'");
+                }
+                
+                // Sort by category, then by ID
+                stashRows = stashRows.OrderBy(x => x.Item1).ThenBy(x => x.Item2).ToList();
+                
+                // Add sorted rows to grid
+                foreach (var row in stashRows)
+                {
+                    dgvStashes.Rows.Add(row.Item1, row.Item2, row.Item3, row.Item4);
+                }
+                
+                System.Diagnostics.Debug.WriteLine($"DEBUG: dgvStashes now has {dgvStashes.Rows.Count} rows");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("DEBUG: HideoutSecondaryStashes is NULL!");
+            }
+
+            // Populate Exfils from config (not from MapData) - Enhanced readable format
+            dgvExfils.Rows.Clear();
+            if (_currentConfig.Exfiltrations != null)
+            {
+                System.Diagnostics.Debug.WriteLine($"DEBUG: Found {_currentConfig.Exfiltrations.Count} maps with exfils");
+                
+                // Create list of formatted exfil entries
+                var exfilEntries = new List<Tuple<string, string, string, string>>(); // Map, ExfilName, Description, Destinations
+                
+                foreach (var map in _currentConfig.Exfiltrations)
+                {
+                    System.Diagnostics.Debug.WriteLine($"DEBUG: Map {map.Key} has {map.Value.Count} exfils");
+                    
+                    // Get map display name
+                    var mapData = MapDataProvider.GetMap(map.Key);
+                    var mapDisplayName = mapData?.MapDisplayName ?? map.Key;
+                    
+                    foreach (var exfil in map.Value)
+                    {
+                        // Find the description from MapData
+                        var exfilDescription = exfil.Key; // Default to identifier
+                        if (mapData != null)
+                        {
+                            var exfilData = mapData.Exfiltrations.FirstOrDefault(e => 
+                                string.Equals(e.Identifier, exfil.Key, StringComparison.OrdinalIgnoreCase));
+                            if (exfilData != null)
+                            {
+                                exfilDescription = exfilData.Description;
+                            }
+                        }
+                        
+                        var destinations = string.Join(", ", exfil.Value);
+                        
+                        exfilEntries.Add(new Tuple<string, string, string, string>(
+                            mapDisplayName, exfil.Key, exfilDescription, destinations));
+                        
+                        System.Diagnostics.Debug.WriteLine($"DEBUG: Adding exfil '{exfilDescription}' ({exfil.Key}) → {destinations} on {mapDisplayName}");
+                    }
+                }
+                
+                // Sort by map name, then by description
+                exfilEntries = exfilEntries.OrderBy(x => x.Item1).ThenBy(x => x.Item3).ToList();
+                
+                // Add formatted rows
+                foreach (var entry in exfilEntries)
+                {
+                    // Format: "Description" that leads to "Identifier" is on map "MapName"
+                    var readableFormat = $"\"{entry.Item3}\" ➜ [{entry.Item2}] on {entry.Item1}";
+                    dgvExfils.Rows.Add(readableFormat, entry.Item4, entry.Item1);
+                }
+                
+                System.Diagnostics.Debug.WriteLine($"DEBUG: dgvExfils now has {dgvExfils.Rows.Count} rows");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("DEBUG: Exfiltrations is NULL!");
+            }
+
+            // Populate Infiltrations from config - Enhanced readable format
+            dgvInfils.Rows.Clear();
+            if (_currentConfig.Infiltrations != null)
+            {
+                // Create list of formatted infil entries
+                var infilEntries = new List<Tuple<string, string, string>>(); // Map, Location, Spawns
+                
+                foreach (var location in _currentConfig.Infiltrations)
+                {
+                    foreach (var map in location.Value)
+                    {
+                        // Get map display name
+                        var mapData = MapDataProvider.GetMap(map.Key);
+                        var mapDisplayName = mapData?.MapDisplayName ?? map.Key;
+                        
+                        var spawns = string.Join(", ", map.Value);
+                        
+                        // Format: "Location" on map "MapName"
+                        var readableFormat = $"\"{location.Key}\" on {mapDisplayName}";
+                        
+                        infilEntries.Add(new Tuple<string, string, string>(
+                            mapDisplayName, readableFormat, spawns));
+                    }
+                }
+                
+                // Sort by map name, then by location
+                infilEntries = infilEntries.OrderBy(x => x.Item1).ThenBy(x => x.Item2).ToList();
+                
+                // Add formatted rows
+                foreach (var entry in infilEntries)
+                {
+                    dgvInfils.Rows.Add(entry.Item2, entry.Item1, entry.Item3);
+                }
+            }
+        }
+
+        private void btnSaveAll_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(_currentConfigPath))
+            {
+                MessageBox.Show("No config file opened. Use 'Open Config' to select a config file first.", "No Config", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (_currentConfig == null)
+            {
+                MessageBox.Show("No config data loaded.", "No Data", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            try
+            {
+                // Update config from UI
+                _currentConfig.InitialOffraidPosition = txtBaseLocation.Text;
+
+                // Save all changes
+                PTTConfigWriter.SaveConfigChanges(
+                    _currentConfigPath,
+                    _currentConfig,
+                    dgvTraders.Rows,
+                    dgvStashes.Rows,
+                    dgvExfils.Rows,
+                    dgvInfils.Rows,
+                    dgvRestrictions.Rows,
+                    clbMainStashAccess.CheckedItems,
+                    clbHealthAccess.CheckedItems,
+                    clbEnergyAccess.CheckedItems,
+                    clbHydrationAccess.CheckedItems
+                );
+
+                MessageBox.Show($"All changes saved successfully!\n\nBackup created at:\n{_currentConfigPath}.backup", 
+                    "Save Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                
+                lblCurrentConfig.Text = _currentConfigPath + " (saved)";
+
+                // Reload the config to refresh UI
+                _currentConfigText = File.ReadAllText(_currentConfigPath);
+                _currentConfig = PTTConfigManager.LoadConfig(_currentConfigPath);
+                PopulateUIFromConfig();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to save config:\n\n{ex.Message}\n\n{ex.StackTrace}", 
+                    "Save Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void cmbBaseLocations_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var item = cmbBaseLocations.SelectedItem as InfiltrationItem;
+            if (item != null)
+            {
+                txtBaseLocation.Text = item.Key;
+            }
+        }
+
+        /// <summary>
+        /// Categorize a stash based on its ID and access location
+        /// </summary>
+        private string CategorizeStash(string stashId, string accessVia)
+        {
+            var lower = stashId.ToLower();
+            var accessLower = accessVia.ToLower();
+
+            // Trader/NPC Hideouts
+            if (lower.Contains("hideout") || accessLower.Contains("hideout"))
+            {
+                if (lower.Contains("mechanic")) return "🔧 Mechanic Hideout";
+                if (lower.Contains("therapist") || lower.Contains("jager") || lower.Contains("jaeger")) return "🏥 Therapist/Jaeger";
+                if (lower.Contains("ragman")) return "👔 Ragman Hideout";
+                if (lower.Contains("peacekeeper")) return "🕊️ Peacekeeper Hideout";
+                if (lower.Contains("skier")) return "⛷️ Skier Hideout";
+                if (lower.Contains("ref")) return "🏟️ Ref Hideout";
+                if (lower.Contains("scorpion")) return "🦂 Scorpion Hideout";
+                if (lower.Contains("coyote")) return "🐺 Coyote Hideout";
+                return "🏠 Hideout";
+            }
+
+            // Lab Access Stashes
+            if (lower.Contains("lab") || accessLower.Contains("lab"))
+            {
+                return "🔬 Lab Access";
+            }
+
+            // Bridge/Path connections
+            if (lower.Contains("bridge") || lower.Contains("path") || lower.Contains("passage"))
+            {
+                if (lower.Contains("woods")) return "🌲 Woods Connection";
+                if (lower.Contains("lighthouse")) return "🗼 Lighthouse Connection";
+                return "🛤️ Map Connection";
+            }
+
+            // Reserve/Military connections
+            if (accessLower.Contains("reserve") || accessLower.Contains("military") || accessLower.Contains("sniper"))
+            {
+                return "🪖 Military/Reserve";
+            }
+
+            // Ground Zero connections
+            if (accessLower.Contains("elevator") || accessLower.Contains("casino") || accessLower.Contains("groundzero"))
+            {
+                return "🏙️ Ground Zero";
+            }
+
+            // Map-specific stashes
+            if (accessLower.Contains("customs") || lower.Contains("customs"))
+                return "🏭 Customs";
+            if (accessLower.Contains("woods") || lower.Contains("woods"))
+                return "🌲 Woods";
+            if (accessLower.Contains("shoreline") || lower.Contains("shoreline"))
+                return "🏖️ Shoreline";
+            if (accessLower.Contains("interchange") || lower.Contains("interchange"))
+                return "🛒 Interchange";
+            if (accessLower.Contains("streets") || lower.Contains("streets"))
+                return "🏙️ Streets";
+            if (accessLower.Contains("lighthouse") || lower.Contains("lighthouse"))
+                return "🗼 Lighthouse";
+
+            // Default
+            return "📦 Other";
+        }
+
+        // Stashes
+        private void btnAddStash_Click(object sender, EventArgs e)
+        {
+            if (dgvStashes != null)
+            {
+                // Get all infiltrations from MapData
+                var allInfiltrations = MapDataProvider.GetAllInfiltrations();
+                
+                using (var form = new AddStashForm(allInfiltrations))
+                {
+                    if (form.ShowDialog() == DialogResult.OK)
+                    {
+                        // Check if stash already exists
+                        bool stashExists = false;
+                        DataGridViewRow existingRow = null;
+                        
+                        foreach (DataGridViewRow row in dgvStashes.Rows)
+                        {
+                            if (row.Cells[1].Value != null &&  // Changed from [0] to [1] due to Category column
+                                row.Cells[1].Value.ToString() == form.StashId)
+                            {
+                                stashExists = true;
+                                existingRow = row;
+                                break;
+                            }
+                        }
+                        
+                        if (stashExists && existingRow != null)
+                        {
+                            // Update existing stash
+                            var result = MessageBox.Show(
+                                $"Stash '{form.StashId}' already exists. Do you want to update it?",
+                                "Update Stash",
+                                MessageBoxButtons.YesNo,
+                                MessageBoxIcon.Question);
+                            
+                            if (result == DialogResult.Yes)
+                            {
+                                var category = CategorizeStash(form.StashId, form.AccessVia);
+                                existingRow.Cells[0].Value = category;
+                                existingRow.Cells[2].Value = form.StashSize;
+                                existingRow.Cells[3].Value = form.AccessVia;
+                            }
+                        }
+                        else
+                        {
+                            // Add new stash with category
+                            var category = CategorizeStash(form.StashId, form.AccessVia);
+                            dgvStashes.Rows.Add(category, form.StashId, form.StashSize, form.AccessVia);
+                            
+                            // Re-sort after adding
+                            dgvStashes.Sort(dgvStashes.Columns[0], System.ComponentModel.ListSortDirection.Ascending);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void btnDeleteStash_Click(object sender, EventArgs e)
+        {
+            if (dgvStashes != null && dgvStashes.SelectedRows.Count > 0)
+            {
+                // Create a list of rows to delete
+                var rowsToDelete = new List<DataGridViewRow>();
+                
+                foreach (DataGridViewRow row in dgvStashes.SelectedRows)
+                {
+                    if (!row.IsNewRow)
+                        rowsToDelete.Add(row);
+                }
+                
+                // Confirm deletion
+                if (rowsToDelete.Count > 0)
+                {
+                    var stashIds = new List<string>();
+                    foreach (var row in rowsToDelete)
+                    {
+                        if (row.Cells[1].Value != null)  // Changed from [0] to [1]
+                            stashIds.Add(row.Cells[1].Value.ToString());
+                    }
+                    
+                    var message = rowsToDelete.Count == 1
+                        ? $"Delete stash '{stashIds[0]}'?"
+                        : $"Delete {rowsToDelete.Count} stashes?";
+                    
+                    var result = MessageBox.Show(message, "Confirm Delete", 
+                        MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    
+                    if (result == DialogResult.Yes)
+                    {
+                        foreach (var row in rowsToDelete)
+                        {
+                            dgvStashes.Rows.Remove(row);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Traders
+        private void btnAddTrader_Click(object sender, EventArgs e)
+        {
+            if (dgvTraders != null)
+            {
+                // Get all infiltrations from MapData
+                var allInfiltrations = MapDataProvider.GetAllInfiltrations();
+                
+                using (var form = new AddTraderForm(allInfiltrations))
+                {
+                    if (form.ShowDialog() == DialogResult.OK)
+                    {
+                        // Check if trader already exists
+                        bool traderExists = false;
+                        DataGridViewRow existingRow = null;
+                        
+                        foreach (DataGridViewRow row in dgvTraders.Rows)
+                        {
+                            if (row.Cells[0].Value != null && 
+                                row.Cells[0].Value.ToString() == form.SelectedTraderId)
+                            {
+                                traderExists = true;
+                                existingRow = row;
+                                break;
+                            }
+                        }
+                        
+                        if (traderExists && existingRow != null)
+                        {
+                            // Update existing trader
+                            var result = MessageBox.Show(
+                                $"Trader '{form.SelectedTraderName}' already exists. Do you want to update its access locations?",
+                                "Update Trader",
+                                MessageBoxButtons.YesNo,
+                                MessageBoxIcon.Question);
+                            
+                            if (result == DialogResult.Yes)
+                            {
+                                existingRow.Cells[2].Value = form.SelectedAccessVia;
+                            }
+                        }
+                        else
+                        {
+                            // Add new trader
+                            dgvTraders.Rows.Add(form.SelectedTraderId, form.SelectedTraderName, form.SelectedAccessVia);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void btnDeleteTrader_Click(object sender, EventArgs e)
+        {
+            if (dgvTraders != null && dgvTraders.SelectedRows.Count > 0)
+            {
+                var rowsToDelete = new List<DataGridViewRow>();
+                
+                foreach (DataGridViewRow row in dgvTraders.SelectedRows)
+                {
+                    if (!row.IsNewRow)
+                        rowsToDelete.Add(row);
+                }
+                
+                if (rowsToDelete.Count > 0)
+                {
+                    var traderNames = new List<string>();
+                    foreach (var row in rowsToDelete)
+                    {
+                        if (row.Cells[1].Value != null)
+                            traderNames.Add(row.Cells[1].Value.ToString());
+                    }
+                    
+                    var message = rowsToDelete.Count == 1
+                        ? $"Delete trader '{traderNames[0]}'?"
+                        : $"Delete {rowsToDelete.Count} traders?";
+                    
+                    var result = MessageBox.Show(message, "Confirm Delete", 
+                        MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    
+                    if (result == DialogResult.Yes)
+                    {
+                        foreach (var row in rowsToDelete)
+                        {
+                            dgvTraders.Rows.Remove(row);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Exfils
+        private void btnAddExfil_Click(object sender, EventArgs e)
+        {
+            if (dgvExfils != null)
+            {
+                using (var form = new AddExfilForm())
+                {
+                    if (form.ShowDialog() == DialogResult.OK)
+                    {
+                        // Format the exfil entry in a readable way
+                        var readableFormat = $"\"{form.SelectedExfilDescription}\" ➜ [{form.SelectedExfilIdentifier}] on {form.SelectedMapDisplayName}";
+                        var destinations = string.Join(", ", form.SelectedInfiltrations);
+                        
+                        // Check if this exact exfil already exists
+                        bool exists = false;
+                        DataGridViewRow existingRow = null;
+                        
+                        foreach (DataGridViewRow row in dgvExfils.Rows)
+                        {
+                            if (row.Cells[0].Value != null && row.Cells[2].Value != null)
+                            {
+                                var existingFormat = row.Cells[0].Value.ToString();
+                                // Check if same map and same exfil identifier
+                                if (existingFormat.Contains($"[{form.SelectedExfilIdentifier}]") && 
+                                    existingFormat.Contains($"on {form.SelectedMapDisplayName}"))
+                                {
+                                    exists = true;
+                                    existingRow = row;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        if (exists && existingRow != null)
+                        {
+                            // Update existing exfil
+                            var result = MessageBox.Show(
+                                $"Exfiltration '{form.SelectedExfilDescription}' on {form.SelectedMapDisplayName} already exists.\n\nDo you want to update its destinations?",
+                                "Update Exfiltration",
+                                MessageBoxButtons.YesNo,
+                                MessageBoxIcon.Question);
+                            
+                            if (result == DialogResult.Yes)
+                            {
+                                existingRow.Cells[0].Value = readableFormat;
+                                existingRow.Cells[1].Value = destinations;
+                            }
+                        }
+                        else
+                        {
+                            // Add new exfil
+                            dgvExfils.Rows.Add(readableFormat, destinations, form.SelectedMapDisplayName);
+                            
+                            // Sort by map name
+                            dgvExfils.Sort(dgvExfils.Columns[2], System.ComponentModel.ListSortDirection.Ascending);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void btnDeleteExfil_Click(object sender, EventArgs e)
+        {
+            if (dgvExfils != null && dgvExfils.SelectedRows.Count > 0)
+            {
+                var rowsToDelete = new List<DataGridViewRow>();
+                
+                foreach (DataGridViewRow row in dgvExfils.SelectedRows)
+                {
+                    if (!row.IsNewRow)
+                        rowsToDelete.Add(row);
+                }
+                
+                if (rowsToDelete.Count > 0)
+                {
+                    var exfilNames = new List<string>();
+                    foreach (var row in rowsToDelete)
+                    {
+                        if (row.Cells[0].Value != null)
+                            exfilNames.Add(row.Cells[0].Value.ToString());
+                    }
+                    
+                    var message = rowsToDelete.Count == 1
+                        ? $"Delete exfiltration '{exfilNames[0]}'?"
+                        : $"Delete {rowsToDelete.Count} exfiltrations?";
+                    
+                    var result = MessageBox.Show(message, "Confirm Delete", 
+                        MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    
+                    if (result == DialogResult.Yes)
+                    {
+                        foreach (var row in rowsToDelete)
+                        {
+                            dgvExfils.Rows.Remove(row);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Infils
+        private void btnAddInfil_Click(object sender, EventArgs e)
+        {
+            if (dgvInfils != null)
+            {
+                dgvInfils.Rows.Add("NewInfil", "Map", "Spawn1, Spawn2");
+            }
+        }
+
+        private void btnDeleteInfil_Click(object sender, EventArgs e)
+        {
+            if (dgvInfils != null && dgvInfils.SelectedRows.Count > 0)
+            {
+                var rowsToDelete = new List<DataGridViewRow>();
+                
+                foreach (DataGridViewRow row in dgvInfils.SelectedRows)
+                {
+                    if (!row.IsNewRow)
+                        rowsToDelete.Add(row);
+                }
+                
+                if (rowsToDelete.Count > 0)
+                {
+                    var infilNames = new List<string>();
+                    foreach (var row in rowsToDelete)
+                    {
+                        if (row.Cells[0].Value != null)
+                            infilNames.Add(row.Cells[0].Value.ToString());
+                    }
+                    
+                    var message = rowsToDelete.Count == 1
+                        ? $"Delete infiltration '{infilNames[0]}'?"
+                        : $"Delete {rowsToDelete.Count} infiltrations?";
+                    
+                    var result = MessageBox.Show(message, "Confirm Delete", 
+                        MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    
+                    if (result == DialogResult.Yes)
+                    {
+                        foreach (var row in rowsToDelete)
+                        {
+                            dgvInfils.Rows.Remove(row);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void txtBaseLocation_TextChanged(object sender, EventArgs e)
+        {
+            // placeholder
+        }
+
+        private void txtBaseLocation_TextChanged_1(object sender, EventArgs e)
+        {
+            // placeholder
+        }
+
+        private void lblMainStashAccess_Click(object sender, EventArgs e)
+        {
+            // placeholder
+        }
+
+        // Restrictions
+        private void btnAddRestriction_Click(object sender, EventArgs e)
+        {
+            if (dgvRestrictions != null)
+            {
+                using (var form = new AddRestrictionForm())
+                {
+                    if (form.ShowDialog() == DialogResult.OK)
+                    {
+                        dgvRestrictions.Rows.Add(form.ItemId, form.ItemName, form.MaxValue);
+                    }
+                }
+            }
+        }
+
+        private void btnDeleteRestriction_Click(object sender, EventArgs e)
+        {
+            if (dgvRestrictions != null && dgvRestrictions.SelectedRows.Count > 0)
+            {
+                foreach (DataGridViewRow row in dgvRestrictions.SelectedRows)
+                {
+                    if (!row.IsNewRow)
+                        dgvRestrictions.Rows.Remove(row);
+                }
+            }
+        }
+
+        // Map Visualization
+        private void btnOpenMapVisualization_Click(object sender, EventArgs e)
+        {
+            if (_currentConfig == null)
+            {
+                MessageBox.Show("Please load a config file first.", "No Config Loaded", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            try
+            {
+                using (var mapForm = new MapVisualizationForm_Enhanced(_currentConfig))
+                {
+                    mapForm.ShowDialog();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to open map visualization:\n\n{ex.Message}", 
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+    }
+
+    public class InfiltrationItem
+    {
+        public string Display { get; set; }
+        public string Key { get; set; }
+        public string MapId { get; set; }
+    }
+}

@@ -1,0 +1,12 @@
+F:\temp\Code Projects\Git\PTT-Config-Editor\MP PTT Cleaned\bin\Debug\MP PTT.exe.config
+F:\temp\Code Projects\Git\PTT-Config-Editor\MP PTT Cleaned\bin\Debug\MP PTT.exe
+F:\temp\Code Projects\Git\PTT-Config-Editor\MP PTT Cleaned\bin\Debug\MP PTT.pdb
+F:\temp\Code Projects\Git\PTT-Config-Editor\MP PTT Cleaned\bin\Debug\Newtonsoft.Json.dll
+F:\temp\Code Projects\Git\PTT-Config-Editor\MP PTT Cleaned\obj\Debug\MP PTT2.csproj.AssemblyReference.cache
+F:\temp\Code Projects\Git\PTT-Config-Editor\MP PTT Cleaned\obj\Debug\MP_PTT.Form1.resources
+F:\temp\Code Projects\Git\PTT-Config-Editor\MP PTT Cleaned\obj\Debug\MP_PTT.Properties.Resources.resources
+F:\temp\Code Projects\Git\PTT-Config-Editor\MP PTT Cleaned\obj\Debug\MP PTT2.csproj.GenerateResource.cache
+F:\temp\Code Projects\Git\PTT-Config-Editor\MP PTT Cleaned\obj\Debug\MP PTT2.csproj.CoreCompileInputs.cache
+F:\temp\Code Projects\Git\PTT-Config-Editor\MP PTT Cleaned\obj\Debug\MP PTT2.csproj.Up2Date
+F:\temp\Code Projects\Git\PTT-Config-Editor\MP PTT Cleaned\obj\Debug\MP PTT.exe
+F:\temp\Code Projects\Git\PTT-Config-Editor\MP PTT Cleaned\obj\Debug\MP PTT.pdb

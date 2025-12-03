@@ -1,0 +1,738 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Windows.Forms;
+
+namespace MP_PTT
+{
+    public static class PTTConfigWriter
+    {
+        public static void SaveConfigChanges(string filePath, PTTConfig config, DataGridViewRowCollection tradersRows, 
+            DataGridViewRowCollection stashesRows, DataGridViewRowCollection exfilsRows, DataGridViewRowCollection infilsRows,
+            DataGridViewRowCollection restrictionsRows = null, CheckedListBox.CheckedItemCollection mainStashAccess = null,
+            CheckedListBox.CheckedItemCollection healthAccess = null, CheckedListBox.CheckedItemCollection energyAccess = null, 
+            CheckedListBox.CheckedItemCollection hydrationAccess = null)
+        {
+            if (!File.Exists(filePath))
+                throw new FileNotFoundException("Config file not found", filePath);
+
+            var text = File.ReadAllText(filePath);
+
+            // Update initial_offraid_position
+            if (!string.IsNullOrEmpty(config.InitialOffraidPosition))
+            {
+                text = UpdateInitialOffraidPosition(text, config.InitialOffraidPosition);
+            }
+
+            // Update main stash access
+            if (mainStashAccess != null)
+            {
+                text = UpdateMainStashAccess(text, mainStashAccess);
+            }
+
+            // Update restrictions
+            if (restrictionsRows != null)
+            {
+                text = UpdateRestrictions(text, restrictionsRows);
+            }
+
+            // Update offraid regen
+            if (healthAccess != null || energyAccess != null || hydrationAccess != null)
+            {
+                text = UpdateOffraidRegen(text, healthAccess, energyAccess, hydrationAccess);
+            }
+
+            // Update traders from DataGridView
+            text = UpdateTradersConfig(text, tradersRows);
+
+            // Update stashes from DataGridView
+            text = UpdateStashesConfig(text, stashesRows);
+
+            // Update exfils from DataGridView
+            text = UpdateExfilsConfig(text, exfilsRows);
+
+            // Update infils from DataGridView
+            text = UpdateInfilsConfig(text, infilsRows);
+
+            // Backup original
+            var backupPath = filePath + ".backup";
+            if (File.Exists(backupPath))
+            {
+                File.Delete(backupPath);
+            }
+            File.Copy(filePath, backupPath);
+
+            // Save updated config
+            File.WriteAllText(filePath, text);
+        }
+
+        private static string UpdateInitialOffraidPosition(string text, string position)
+        {
+            var regex = new Regex(@"(initial_offraid_position\s*:\s*)['""]?[^'"",\r\n]+['""]?", RegexOptions.IgnoreCase);
+            var quote = position.Contains("'") ? '"' : '\'';
+            
+            if (regex.IsMatch(text))
+            {
+                return regex.Replace(text, $"$1{quote}{position}{quote}");
+            }
+            else
+            {
+                // Insert after first opening brace
+                var idx = text.IndexOf('{');
+                if (idx >= 0)
+                {
+                    idx = text.IndexOf('\n', idx);
+                    if (idx >= 0)
+                    {
+                        return text.Insert(idx + 1, $"  initial_offraid_position: {quote}{position}{quote},\n");
+                    }
+                }
+            }
+            
+            return text;
+        }
+
+        private static string UpdateMainStashAccess(string text, CheckedListBox.CheckedItemCollection checkedItems)
+        {
+            var regex = new Regex(@"hideout_main_stash_access_via\s*:\s*\[[^\]]*\]", RegexOptions.IgnoreCase);
+            
+            var locations = new List<string>();
+            foreach (var item in checkedItems)
+            {
+                locations.Add($"'{item}'");
+            }
+            
+            var replacement = $"hideout_main_stash_access_via: [{string.Join(", ", locations)}]";
+            
+            if (regex.IsMatch(text))
+            {
+                return regex.Replace(text, replacement);
+            }
+            else
+            {
+                // Insert after initial_offraid_position
+                var insertPoint = text.IndexOf("initial_offraid_position");
+                if (insertPoint >= 0)
+                {
+                    insertPoint = text.IndexOf('\n', insertPoint);
+                    if (insertPoint >= 0)
+                    {
+                        return text.Insert(insertPoint + 1, $"  {replacement},\n");
+                    }
+                }
+            }
+            
+            return text;
+        }
+
+        private static string UpdateRestrictions(string text, DataGridViewRowCollection rows)
+        {
+            // Use proper brace counting to handle nested objects
+            var rgRestrictions = new Regex(@"restrictions_in_raid\s*:\s*\{", RegexOptions.IgnoreCase);
+            var match = rgRestrictions.Match(text);
+            
+            if (!match.Success)
+            {
+                // Insert restrictions section if it doesn't exist
+                var insertPoint = text.IndexOf("hideout_main_stash_access_via");
+                if (insertPoint < 0)
+                    insertPoint = text.IndexOf("initial_offraid_position");
+                    
+                if (insertPoint >= 0)
+                {
+                    insertPoint = text.IndexOf('\n', insertPoint);
+                    if (insertPoint >= 0)
+                    {
+                        var sb = new StringBuilder();
+                        sb.AppendLine("  restrictions_in_raid: {");
+                        
+                        foreach (DataGridViewRow row in rows)
+                        {
+                            if (row.IsNewRow || row.Cells[0].Value == null) continue;
+                            
+                            var itemId = row.Cells[0].Value.ToString();
+                            var itemName = row.Cells[1].Value?.ToString() ?? "";
+                            var maxValue = row.Cells[2].Value?.ToString() ?? "0";
+                            
+                            sb.AppendLine($"    // {itemName}");
+                            sb.AppendLine($"    '{itemId}': {{");
+                            sb.AppendLine($"      Value: {maxValue},");
+                            sb.AppendLine("    },");
+                        }
+                        
+                        sb.AppendLine("  },");
+                        
+                        return text.Insert(insertPoint + 1, sb.ToString());
+                    }
+                }
+                
+                return text;
+            }
+            
+            // Find the end of restrictions_in_raid using proper brace counting
+            int braceCount = 1;
+            int startPos = match.Index + match.Length;
+            int endPos = startPos;
+
+            for (int i = startPos; i < text.Length && braceCount > 0; i++)
+            {
+                if (text[i] == '{') braceCount++;
+                else if (text[i] == '}')
+                {
+                    braceCount--;
+                    if (braceCount == 0)
+                    {
+                        endPos = i;
+                        break;
+                    }
+                }
+            }
+            
+            if (braceCount == 0)
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine();
+                
+                foreach (DataGridViewRow row in rows)
+                {
+                    if (row.IsNewRow || row.Cells[0].Value == null) continue;
+                    
+                    var itemId = row.Cells[0].Value.ToString();
+                    var itemName = row.Cells[1].Value?.ToString() ?? "";
+                    var maxValue = row.Cells[2].Value?.ToString() ?? "0";
+                    
+                    // Keep comment lowercase for consistency
+                    sb.AppendLine($"    // {itemName}");
+                    sb.AppendLine($"    '{itemId}': {{");
+                    sb.AppendLine($"      Value: {maxValue},");
+                    sb.AppendLine("    },");
+                }
+                
+                sb.Append("  ");
+                
+                text = text.Substring(0, startPos) + sb.ToString() + text.Substring(endPos);
+            }
+            
+            return text;
+        }
+
+        private static string UpdateOffraidRegen(string text, CheckedListBox.CheckedItemCollection healthAccess, 
+            CheckedListBox.CheckedItemCollection energyAccess, CheckedListBox.CheckedItemCollection hydrationAccess)
+        {
+            var rgRegen = new Regex(@"offraid_regen_config\s*:\s*\{", RegexOptions.IgnoreCase);
+            var match = rgRegen.Match(text);
+            
+            if (!match.Success)
+            {
+                // Insert offraid_regen_config section if it doesn't exist
+                var insertPoint = text.IndexOf("restrictions_in_raid");
+                if (insertPoint < 0)
+                    insertPoint = text.IndexOf("hideout_main_stash_access_via");
+                if (insertPoint < 0)
+                    insertPoint = text.IndexOf("initial_offraid_position");
+                    
+                if (insertPoint >= 0)
+                {
+                    // Find the closing brace of the current section
+                    var braceCount = 0;
+                    var i = insertPoint;
+                    while (i < text.Length)
+                    {
+                        if (text[i] == '{') braceCount++;
+                        else if (text[i] == '}')
+                        {
+                            braceCount--;
+                            if (braceCount == 0)
+                            {
+                                i = text.IndexOf('\n', i);
+                                if (i >= 0)
+                                {
+                                    var sb = new StringBuilder();
+                                    sb.AppendLine("  offraid_regen_config: {");
+                                    
+                                    if (hydrationAccess != null)
+                                    {
+                                        sb.AppendLine("    hydration: {");
+                                        if (hydrationAccess.Count == 0)
+                                        {
+                                            sb.AppendLine("      access_via: '*',");
+                                        }
+                                        else
+                                        {
+                                            var locations = new List<string>();
+                                            foreach (var item in hydrationAccess)
+                                            {
+                                                locations.Add($"'{item}'");
+                                            }
+                                            sb.AppendLine($"      access_via: [{string.Join(", ", locations)}],");
+                                        }
+                                        sb.AppendLine("    },");
+                                    }
+                                    
+                                    if (energyAccess != null)
+                                    {
+                                        sb.AppendLine("    energy: {");
+                                        if (energyAccess.Count == 0)
+                                        {
+                                            sb.AppendLine("      access_via: '*',");
+                                        }
+                                        else
+                                        {
+                                            var locations = new List<string>();
+                                            foreach (var item in energyAccess)
+                                            {
+                                                locations.Add($"'{item}'");
+                                            }
+                                            sb.AppendLine($"      access_via: [{string.Join(", ", locations)}],");
+                                        }
+                                        sb.AppendLine("    },");
+                                    }
+                                    
+                                    if (healthAccess != null)
+                                    {
+                                        sb.AppendLine("    health: {");
+                                        if (healthAccess.Count == 0)
+                                        {
+                                            sb.AppendLine("      access_via: '*',");
+                                        }
+                                        else
+                                        {
+                                            var locations = new List<string>();
+                                            foreach (var item in healthAccess)
+                                            {
+                                                locations.Add($"'{item}'");
+                                            }
+                                            sb.AppendLine($"      access_via: [{string.Join(", ", locations)}],");
+                                        }
+                                        sb.AppendLine("    }, ");
+                                    }
+                                    
+                                    sb.AppendLine("  }, ");
+                                    
+                                    return text.Insert(i + 1, sb.ToString());
+                                }
+                                break;
+                            }
+                        }
+                        i++;
+                    }
+                }
+                
+                return text;
+            }
+            
+            // Find the end using proper brace counting
+            int braceCount2 = 1;
+            int startPos = match.Index + match.Length;
+            int endPos = startPos;
+
+            for (int i = startPos; i < text.Length && braceCount2 > 0; i++)
+            {
+                if (text[i] == '{') braceCount2++;
+                else if (text[i] == '}')
+                {
+                    braceCount2--;
+                    if (braceCount2 == 0)
+                    {
+                        endPos = i;
+                        break;
+                    }
+                }
+            }
+            
+            if (braceCount2 == 0)
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine();
+                
+                if (hydrationAccess != null)
+                {
+                    sb.AppendLine("    hydration: {");
+                    if (hydrationAccess.Count == 0)
+                    {
+                        sb.AppendLine("      access_via: '*',");
+                    }
+                    else
+                    {
+                        var locations = new List<string>();
+                        foreach (var item in hydrationAccess)
+                        {
+                            locations.Add($"'{item}'");
+                        }
+                        sb.AppendLine($"      access_via: [{string.Join(", ", locations)}],");
+                    }
+                    sb.AppendLine("    }, ");
+                }
+                
+                if (energyAccess != null)
+                {
+                    sb.AppendLine("    energy: {");
+                    if (energyAccess.Count == 0)
+                    {
+                        sb.AppendLine("      access_via: '*',");
+                    }
+                    else
+                    {
+                        var locations = new List<string>();
+                        foreach (var item in energyAccess)
+                        {
+                            locations.Add($"'{item}'");
+                        }
+                        sb.AppendLine($"      access_via: [{string.Join(", ", locations)}],");
+                    }
+                    sb.AppendLine("    }, ");
+                }
+                
+                if (healthAccess != null)
+                {
+                    sb.AppendLine("    health: {");
+                    if (healthAccess.Count == 0)
+                    {
+                        sb.AppendLine("      access_via: '*',");
+                    }
+                    else
+                    {
+                        var locations = new List<string>();
+                        foreach (var item in healthAccess)
+                        {
+                            locations.Add($"'{item}'");
+                        }
+                        sb.AppendLine($"      access_via: [{string.Join(", ", locations)}],");
+                    }
+                    sb.AppendLine("    }, ");
+                }
+                
+                sb.Append("  ");
+                
+                text = text.Substring(0, startPos) + sb.ToString() + text.Substring(endPos);
+            }
+            
+            return text;
+        }
+
+        private static string UpdateTradersConfig(string text, DataGridViewRowCollection rows)
+        {
+            var rgTraders = new Regex(@"traders_config\s*:\s*\{", RegexOptions.IgnoreCase);
+            var match = rgTraders.Match(text);
+
+            if (!match.Success)
+            {
+                // Insert traders_config section before exfiltrations or at the end
+                var insertPoint = text.IndexOf("exfiltrations:", StringComparison.OrdinalIgnoreCase);
+                if (insertPoint < 0)
+                    insertPoint = text.LastIndexOf('}');
+
+                var sb = new StringBuilder();
+                sb.AppendLine("  traders_config: {");
+                
+                foreach (DataGridViewRow row in rows)
+                {
+                    if (row.IsNewRow || row.Cells[0].Value == null) continue;
+                    
+                    var traderId = row.Cells[0].Value.ToString();
+                    var traderName = row.Cells[1].Value?.ToString() ?? "";
+                    var accessVia = row.Cells[2].Value?.ToString() ?? "";
+                    
+                    sb.AppendLine($"    // {traderName}");
+                    sb.AppendLine($"    '{traderId}': {{");
+                    
+                    if (!string.IsNullOrWhiteSpace(accessVia))
+                    {
+                        var locations = accessVia.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                            .Select(x => $"'{x.Trim()}'");
+                        sb.AppendLine($"      access_via: [{string.Join(", ", locations)}],");
+                    }
+                    
+                    sb.AppendLine("    },");
+                }
+                
+                sb.AppendLine("  },");
+                
+                if (insertPoint > 0)
+                {
+                    text = text.Insert(insertPoint, sb.ToString());
+                }
+                
+                return text;
+            }
+
+            // Update existing traders_config section
+            int braceCount = 1;
+            int startPos = match.Index + match.Length;
+            int endPos = startPos;
+
+            for (int i = startPos; i < text.Length && braceCount > 0; i++)
+            {
+                if (text[i] == '{') braceCount++;
+                else if (text[i] == '}') braceCount--;
+                endPos = i;
+            }
+
+            if (braceCount == 0)
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine();
+                
+                foreach (DataGridViewRow row in rows)
+                {
+                    if (row.IsNewRow || row.Cells[0].Value == null) continue;
+                    
+                    var traderId = row.Cells[0].Value.ToString();
+                    var traderName = row.Cells[1].Value?.ToString() ?? "";
+                    var accessVia = row.Cells[2].Value?.ToString() ?? "";
+                    
+                    sb.AppendLine($"    // {traderName}");
+                    sb.AppendLine($"    '{traderId}': {{");
+                    
+                    if (!string.IsNullOrWhiteSpace(accessVia))
+                    {
+                        var locations = accessVia.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                            .Select(x => $"'{x.Trim()}'");
+                        sb.AppendLine($"      access_via: [{string.Join(", ", locations)}],");
+                    }
+                    
+                    sb.AppendLine("    },");
+                }
+                
+                sb.Append("  ");
+                
+                text = text.Substring(0, startPos) + sb.ToString() + text.Substring(endPos);
+            }
+
+            return text;
+        }
+
+        private static string UpdateStashesConfig(string text, DataGridViewRowCollection rows)
+        {
+            var rgStashes = new Regex(@"hideout_secondary_stashes\s*:\s*\[", RegexOptions.IgnoreCase);
+            var match = rgStashes.Match(text);
+
+            var sb = new StringBuilder();
+            sb.AppendLine();
+            
+            foreach (DataGridViewRow row in rows)
+            {
+                if (row.IsNewRow) continue;
+                
+                // Column layout: [0]=Category, [1]=StashId, [2]=Size, [3]=AccessVia
+                // Skip Category column (column 0) - it's for UI only
+                if (row.Cells.Count < 4 || row.Cells[1].Value == null) continue;
+                
+                var stashId = row.Cells[1].Value.ToString();
+                var size = row.Cells[2].Value?.ToString() ?? "38";
+                var accessVia = row.Cells[3].Value?.ToString() ?? "";
+                
+                sb.AppendLine("    {");
+                sb.AppendLine($"      id: '{stashId}',");
+                sb.AppendLine($"      size: {size},");
+                
+                if (!string.IsNullOrWhiteSpace(accessVia))
+                {
+                    var locations = accessVia.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(x => $"'{x.Trim()}'");
+                    sb.AppendLine($"      access_via: [{string.Join(", ", locations)}],");
+                }
+                
+                sb.AppendLine("    }, ");
+            }
+            
+            sb.Append("  ");
+
+            if (!match.Success)
+            {
+                // Insert stashes section
+                var insertPoint = text.IndexOf("traders_config:", StringComparison.OrdinalIgnoreCase);
+                if (insertPoint < 0)
+                    insertPoint = text.IndexOf("exfiltrations:", StringComparison.OrdinalIgnoreCase);
+                if (insertPoint < 0)
+                    insertPoint = text.LastIndexOf('}');
+
+                if (insertPoint > 0)
+                {
+                    text = text.Insert(insertPoint, $"  hideout_secondary_stashes: [{sb}],\n");
+                }
+                
+                return text;
+            }
+
+            // Update existing section
+            int bracketCount = 1;
+            int startPos = match.Index + match.Length;
+            int endPos = startPos;
+
+            for (int i = startPos; i < text.Length && bracketCount > 0; i++)
+            {
+                if (text[i] == '[') bracketCount++;
+                else if (text[i] == ']') bracketCount--;
+                endPos = i;
+            }
+
+            if (bracketCount == 0)
+            {
+                text = text.Substring(0, startPos) + sb.ToString() + text.Substring(endPos);
+            }
+
+            return text;
+        }
+
+        private static string UpdateExfilsConfig(string text, DataGridViewRowCollection rows)
+        {
+            var rgExfils = new Regex(@"exfiltrations\s*:\s*\{", RegexOptions.IgnoreCase);
+            var match = rgExfils.Match(text);
+
+            // Group exfils by map
+            var exfilsByMap = new Dictionary<string, List<Tuple<string, string>>>();
+            
+            foreach (DataGridViewRow row in rows)
+            {
+                if (row.IsNewRow || row.Cells[0].Value == null) continue;
+                
+                var exfilName = row.Cells[0].Value.ToString();
+                var destination = row.Cells[1].Value?.ToString() ?? "";
+                var map = row.Cells[2].Value?.ToString() ?? "unknown";
+                
+                if (!exfilsByMap.ContainsKey(map))
+                    exfilsByMap[map] = new List<Tuple<string, string>>();
+                
+                exfilsByMap[map].Add(new Tuple<string, string>(exfilName, destination));
+            }
+
+            var sb = new StringBuilder();
+            sb.AppendLine();
+            
+            foreach (var kvp in exfilsByMap.OrderBy(x => x.Key))
+            {
+                sb.AppendLine($"    {kvp.Key}: {{");
+                
+                foreach (var exfil in kvp.Value)
+                {
+                    // FIX: Write as ARRAY not string!
+                    sb.AppendLine($"      '{exfil.Item1}': ['{exfil.Item2}'],");
+                }
+                
+                sb.AppendLine("    }, ");
+            }
+            
+            sb.Append("  ");
+
+            if (!match.Success)
+            {
+                // Insert exfils section
+                var insertPoint = text.IndexOf("infiltrations:", StringComparison.OrdinalIgnoreCase);
+                if (insertPoint < 0)
+                    insertPoint = text.LastIndexOf('}');
+
+                if (insertPoint > 0)
+                {
+                    text = text.Insert(insertPoint, $"  exfiltrations: {{{sb}}},\n");
+                }
+                
+                return text;
+            }
+
+            // Update existing section
+            int braceCount = 1;
+            int startPos = match.Index + match.Length;
+            int endPos = startPos;
+
+            for (int i = startPos; i < text.Length && braceCount > 0; i++)
+            {
+                if (text[i] == '{') braceCount++;
+                else if (text[i] == '}') braceCount--;
+                
+                if (braceCount == 0)
+                {
+                    endPos = i;
+                    break;
+                }
+            }
+
+            if (braceCount == 0)
+            {
+                text = text.Substring(0, startPos) + sb.ToString() + text.Substring(endPos);
+            }
+
+            return text;
+        }
+
+        private static string UpdateInfilsConfig(string text, DataGridViewRowCollection rows)
+        {
+            var rgInfils = new Regex(@"infiltrations\s*:\s*\{", RegexOptions.IgnoreCase);
+            var match = rgInfils.Match(text);
+
+            // Group infils by location
+            var infilsByLocation = new Dictionary<string, Dictionary<string, List<string>>>();
+            
+            foreach (DataGridViewRow row in rows)
+            {
+                if (row.IsNewRow || row.Cells[0].Value == null) continue;
+                
+                var location = row.Cells[0].Value.ToString();
+                var map = row.Cells[1].Value?.ToString() ?? "unknown";
+                var spawns = row.Cells[2].Value?.ToString() ?? "";
+                
+                if (!infilsByLocation.ContainsKey(location))
+                    infilsByLocation[location] = new Dictionary<string, List<string>>();
+                
+                var spawnList = spawns.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim())
+                    .ToList();
+                
+                infilsByLocation[location][map] = spawnList;
+            }
+
+            var sb = new StringBuilder();
+            sb.AppendLine();
+            
+            foreach (var location in infilsByLocation.OrderBy(x => x.Key))
+            {
+                sb.AppendLine($"    {location.Key}: {{");
+                
+                foreach (var map in location.Value)
+                {
+                    var spawns = map.Value.Select(x => $"'{x}'");
+                    sb.AppendLine($"      {map.Key}: [{string.Join(", ", spawns)}],");
+                }
+                
+                sb.AppendLine("    },");
+            }
+            
+            sb.Append("  ");
+
+            if (!match.Success)
+            {
+                // Insert infils section
+                var insertPoint = text.LastIndexOf('}');
+
+                if (insertPoint > 0)
+                {
+                    text = text.Insert(insertPoint, $"  infiltrations: {{{sb}}},\n");
+                }
+                
+                return text;
+            }
+
+            // Update existing section
+            int braceCount = 1;
+            int startPos = match.Index + match.Length;
+            int endPos = startPos;
+
+            for (int i = startPos; i < text.Length && braceCount > 0; i++)
+            {
+                if (text[i] == '{') braceCount++;
+                else if (text[i] == '}') braceCount--;
+                endPos = i;
+            }
+
+            if (braceCount == 0)
+            {
+                text = text.Substring(0, startPos) + sb.ToString() + text.Substring(endPos);
+            }
+
+            return text;
+        }
+    }
+}

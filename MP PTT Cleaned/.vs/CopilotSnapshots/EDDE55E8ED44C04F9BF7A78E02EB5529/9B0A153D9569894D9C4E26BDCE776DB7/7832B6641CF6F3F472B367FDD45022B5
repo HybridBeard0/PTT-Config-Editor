@@ -1,0 +1,876 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+
+namespace MP_PTT
+{
+    public static class PTTConfigManager
+    {
+        private static readonly Dictionary<string, string> KnownTraders = new Dictionary<string, string>
+        {
+            { "54cb50c76803fa8b248b4571", "Prapor" },
+            { "54cb57776803fa99248b456e", "Therapist" },
+            { "5a7c2eca46aef81a7ca2145d", "Mechanic" },
+            { "58330581ace78e27b8b10cee", "Skier" },
+            { "5ac3b934156ae10c4430e83c", "Ragman" },
+            { "5c0647fdd443bc2504c2d371", "Jaeger" },
+            { "5935c25fb3acc3127c3d8cd9", "Peacekeeper" },
+            { "579dc571d53a0658a154fbec", "Fence" },
+            { "6617beeaa9cfa777ca915b7c", "Ref" },
+            { "6747208ef022cbbfc65c41bf", "Lotus" },
+            { "6688d464bc40c867f60e7d7e", "Scorpion" },
+            { "67b656f8b32c5563e5089915", "Coyote" },
+            { "674964e1ff0cf3b00b461857", "GuidingLight" },
+            { "674964e72eae32de73a09d41", "GuidingLight2" },
+            { "67635a00fec1f22d67d76870", "Cat Burglar" },
+            { "67419e9d0d4541ce671543bb", "Harry" },
+            { "668aaff35fd574b6dcc4a686", "Painter" },
+            { "67b7b52a4767af842e0521d0", "Gambler" },
+            { "682dc1fc999c34e21413c671", "Oni" },
+            { "6748edbcb936f1098d4303e4", "Legs" },
+            { "66bf757f27d0b097db0acea5", "Artem" },
+            { "66eeef8b2a166b73d2066a7e", "Tony" },
+            { "678937229797bd983dca2137", "Anastasia" },
+            { "6789373b0f5ecebf0bc152d5", "Evelyn" },
+            { "6789374aebcb3ad4c6e073bd", "Svitlana" },
+            { "67b67103b32c5563e508998a", "EPAKIM" },
+            { "66f0eaa93f6cc015bc1f3acb", "Requisition" },
+            { "66f4db5ca4958508883d700c", "Saria" },
+            { "66ef9505bede6c894d6b47bd", "Frostbite" },
+            { "4e7ef752240141bca059b2ea", "Gunsmith" },
+            { "67dae9c254023e4f20bac54f", "Scav Cat" },
+            { "6748adca5c70634464b214a8", "Priscilus" },
+            { "637ace38260faa1bd63047f", "AAT" },
+            { "1337bb0dd843363fcd1be869", "Croupier" },
+            { "66eeef8b2a166b73dc0671e8", "Couturier" },
+            { "68574d007aaa13f9fe07a5bb", "Chef" },
+            { "67ae94fcc9ba3302b328c2f7", "Volkov" },
+            { "bd3a8b28356d9c6509966546", "Badger" },
+            { "e983002c4ab4d99999888000", "Jiang Hu" },
+            { "678fab45ec8b6e5add71985a", "Idea Furniture" },
+            { "68b96623ca01bc95211d3de9", "Euphoria" },
+            { "ragfair", "Flea Market" }
+        };
+
+        public static PTTConfig LoadConfig(string filePath)
+        {
+            System.Diagnostics.Debug.WriteLine($"===== LoadConfig START: {filePath} =====");
+            var config = new PTTConfig();
+
+            if (!File.Exists(filePath))
+            {
+                System.Diagnostics.Debug.WriteLine("ERROR: File does not exist!");
+                return config;
+            }
+
+            var text = File.ReadAllText(filePath);
+            System.Diagnostics.Debug.WriteLine($"File loaded, length={text.Length} chars");
+
+            // Parse initial_offraid_position
+            var rgInitial = new Regex(@"initial_offraid_position\s*:\s*['""]?([^'"",\r\n]+)['""]?", RegexOptions.IgnoreCase);
+            var mInitial = rgInitial.Match(text);
+            if (mInitial.Success)
+            {
+                config.InitialOffraidPosition = mInitial.Groups[1].Value.Trim();
+                System.Diagnostics.Debug.WriteLine($"Initial position: {config.InitialOffraidPosition}");
+            }
+
+            // Parse hideout_main_stash_access_via
+            config.HideoutMainStashAccessVia = ParseStringArray(text, "hideout_main_stash_access_via");
+            System.Diagnostics.Debug.WriteLine($"Main stash access: {config.HideoutMainStashAccessVia.Count} locations");
+
+            // Parse restrictions_in_raid
+            config.RestrictionsInRaid = ParseRestrictionsInRaid(text);
+            System.Diagnostics.Debug.WriteLine($"Restrictions: {config.RestrictionsInRaid.Count} items");
+
+            // Parse offraid_regen_config
+            config.OffraidRegenConfig = ParseOffraidRegenConfig(text);
+            System.Diagnostics.Debug.WriteLine("Offraid regen config parsed");
+
+            // Parse hideout_secondary_stashes
+            System.Diagnostics.Debug.WriteLine("===== ABOUT TO PARSE STASHES =====");
+            config.HideoutSecondaryStashes = ParseSecondaryStashes(text);
+            System.Diagnostics.Debug.WriteLine($"===== STASHES PARSED: {config.HideoutSecondaryStashes.Count} total =====");
+
+            // Parse traders_config
+            config.TradersConfig = ParseTradersConfig(text);
+            System.Diagnostics.Debug.WriteLine($"Traders: {config.TradersConfig.Count} traders");
+
+            // Parse exfiltrations
+            System.Diagnostics.Debug.WriteLine("===== ABOUT TO PARSE EXFILS =====");
+            config.Exfiltrations = ParseExfiltrations(text);
+            System.Diagnostics.Debug.WriteLine($"===== EXFILS PARSED: {config.Exfiltrations.Count} maps =====");
+
+            // Parse infiltrations
+            config.Infiltrations = ParseInfiltrations(text);
+            System.Diagnostics.Debug.WriteLine($"Infiltrations: {config.Infiltrations.Count} locations");
+
+            System.Diagnostics.Debug.WriteLine("===== LoadConfig COMPLETE =====");
+            return config;
+        }
+
+        private static List<string> ParseStringArray(string text, string fieldName)
+        {
+            var result = new List<string>();
+            var pattern = fieldName + @"\s*:\s*\[((?:[^[\]]*(?:\[[^\]]*\][^[\]]*)*))\]";
+            var match = Regex.Match(text, pattern, RegexOptions.Singleline | RegexOptions.IgnoreCase);
+
+            if (match.Success)
+            {
+                var content = match.Groups[1].Value;
+                System.Diagnostics.Debug.WriteLine($"DEBUG ParseStringArray({fieldName}): Found array content: '{content.Substring(0, Math.Min(200, content.Length))}'");
+                
+                var rgItem = new Regex(@"['""]([^'""]+)['""]");
+                foreach (Match m in rgItem.Matches(content))
+                {
+                    var value = m.Groups[1].Value.Trim();
+                    result.Add(value);
+                    System.Diagnostics.Debug.WriteLine($"DEBUG ParseStringArray({fieldName}): Extracted item: '{value}'");
+                }
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"DEBUG ParseStringArray({fieldName}): Pattern did not match!");
+            }
+
+            System.Diagnostics.Debug.WriteLine($"DEBUG ParseStringArray({fieldName}): Total items extracted: {result.Count}");
+            return result;
+        }
+
+        private static List<SecondaryStash> ParseSecondaryStashes(string text)
+        {
+            var result = new List<SecondaryStash>();
+            var rgStashes = new Regex(@"hideout_secondary_stashes\s*:\s*\[", RegexOptions.IgnoreCase);
+            var match = rgStashes.Match(text);
+
+            if (!match.Success)
+            {
+                System.Diagnostics.Debug.WriteLine("DEBUG ParseSecondaryStashes: hideout_secondary_stashes not found in config");
+                return result;
+            }
+
+            System.Diagnostics.Debug.WriteLine("DEBUG ParseSecondaryStashes: Found hideout_secondary_stashes section");
+
+            // Extract the entire stashes array content
+            // We need to track BOTH brackets and braces to handle nested structures
+            int startPos = match.Index + match.Length;
+            int pos = startPos;
+            int bracketDepth = 1;  // We're inside the main array
+            int braceDepth = 0;    // Track {} nesting
+            
+            System.Diagnostics.Debug.WriteLine($"DEBUG ParseSecondaryStashes: Starting extraction from position {startPos}");
+            System.Diagnostics.Debug.WriteLine($"DEBUG ParseSecondaryStashes: Next 20 chars: '{text.Substring(startPos, Math.Min(20, text.Length - startPos))}'");
+
+            // Find the matching closing bracket for the main array
+            while (pos < text.Length && bracketDepth > 0)
+            {
+                char c = text[pos];
+                
+                if (c == '{')
+                {
+                    braceDepth++;
+                }
+                else if (c == '}')
+                {
+                    braceDepth--;
+                }
+                else if (c == '[')
+                {
+                    // Only count brackets when NOT inside any braces (braceDepth must be 0)
+                    if (braceDepth == 0)
+                    {
+                        bracketDepth++;
+                    }
+                }
+                else if (c == ']')
+                {
+                    // Only count brackets when NOT inside any braces (braceDepth must be 0)
+                    if (braceDepth == 0)
+                    {
+                        bracketDepth--;
+                        if (bracketDepth == 0)
+                        {
+                            // Found the end of the main array
+                            break;
+                        }
+                    }
+                }
+                
+                pos++;
+            }
+
+            if (bracketDepth == 0)
+            {
+                var stashSection = text.Substring(startPos, pos - startPos);
+                System.Diagnostics.Debug.WriteLine($"DEBUG ParseSecondaryStashes: Extracted section length={stashSection.Length}");
+                System.Diagnostics.Debug.WriteLine($"DEBUG ParseSecondaryStashes: First 500 chars:");
+                System.Diagnostics.Debug.WriteLine(stashSection.Substring(0, Math.Min(500, stashSection.Length)));
+                System.Diagnostics.Debug.WriteLine("DEBUG ParseSecondaryStashes: ===== END OF FIRST 500 CHARS =====");
+                
+                // Now find each stash object by tracking braces
+                int objPos = 0;
+                int stashCount = 0;
+                
+                while (objPos < stashSection.Length)
+                {
+                    // Find next opening brace
+                    int openBrace = stashSection.IndexOf('{', objPos);
+                    if (openBrace == -1)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"DEBUG ParseSecondaryStashes: No more opening braces found");
+                        break;
+                    }
+                    
+                    // Count braces to find matching closing brace
+                    int braceCount = 1;
+                    int closeBrace = openBrace + 1;
+                    
+                    while (closeBrace < stashSection.Length && braceCount > 0)
+                    {
+                        if (stashSection[closeBrace] == '{') braceCount++;
+                        else if (stashSection[closeBrace] == '}') braceCount--;
+                        closeBrace++;
+                    }
+                    
+                    if (braceCount == 0)
+                    {
+                        // Extract stash content
+                        var stashContent = stashSection.Substring(openBrace + 1, closeBrace - openBrace - 2);
+                        stashCount++;
+                        System.Diagnostics.Debug.WriteLine($"DEBUG ParseSecondaryStashes: ===== Stash #{stashCount} =====");
+                        System.Diagnostics.Debug.WriteLine(stashContent);
+                        
+                        // Extract id
+                        var idMatch = Regex.Match(stashContent, @"id\s*:\s*['""]([^'""]+)['""]", RegexOptions.IgnoreCase);
+                        if (!idMatch.Success)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"DEBUG ParseSecondaryStashes: Stash #{stashCount} - No id found, skipping");
+                            objPos = closeBrace;
+                            continue;
+                        }
+                        
+                        // Extract size
+                        var sizeMatch = Regex.Match(stashContent, @"size\s*:\s*(\d+)", RegexOptions.IgnoreCase);
+                        if (!sizeMatch.Success)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"DEBUG ParseSecondaryStashes: Stash #{stashCount} - No size found, skipping");
+                            objPos = closeBrace;
+                            continue;
+                        }
+                        
+                        // Extract access_via array
+                        var accessMatch = Regex.Match(stashContent, @"access_via\s*:\s*\[([^\]]*)\]", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+                        if (!accessMatch.Success)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"DEBUG ParseSecondaryStashes: Stash #{stashCount} - No access_via found, skipping");
+                            objPos = closeBrace;
+                            continue;
+                        }
+                        
+                        var stash = new SecondaryStash
+                        {
+                            Id = idMatch.Groups[1].Value.Trim(),
+                            Size = int.Parse(sizeMatch.Groups[1].Value.Trim())
+                        };
+                        
+                        // Parse access_via array
+                        var accessContent = accessMatch.Groups[1].Value;
+                        var rgAccess = new Regex(@"['""]([^'""]+)['""]");
+                        foreach (Match am in rgAccess.Matches(accessContent))
+                        {
+                            stash.AccessVia.Add(am.Groups[1].Value.Trim());
+                        }
+                        
+                        System.Diagnostics.Debug.WriteLine($"DEBUG ParseSecondaryStashes: ? Stash #{stashCount} - '{stash.Id}', Size={stash.Size}, Access=[{string.Join(", ", stash.AccessVia)}]");
+                        result.Add(stash);
+                    }
+                    
+                    objPos = closeBrace;
+                }
+                
+                System.Diagnostics.Debug.WriteLine($"DEBUG ParseSecondaryStashes: Finished parsing. Total stash objects found: {stashCount}");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"DEBUG ParseSecondaryStashes: Bracket counting failed! bracketDepth={bracketDepth}");
+            }
+
+            System.Diagnostics.Debug.WriteLine($"DEBUG ParseSecondaryStashes: ===== FINAL RESULT: {result.Count} stashes parsed =====");
+            return result;
+        }
+
+        private static Dictionary<string, TraderConfig> ParseTradersConfig(string text)
+        {
+            var result = new Dictionary<string, TraderConfig>();
+            var rgTraders = new Regex(@"traders_config\s*:\s*\{", RegexOptions.IgnoreCase);
+            var match = rgTraders.Match(text);
+
+            if (!match.Success)
+            {
+                System.Diagnostics.Debug.WriteLine("DEBUG ParseTradersConfig: traders_config not found");
+                return result;
+            }
+
+            System.Diagnostics.Debug.WriteLine("DEBUG ParseTradersConfig: Found traders_config section");
+
+            int braceCount = 1;
+            int startPos = match.Index + match.Length;
+            int endPos = startPos;
+
+            for (int i = startPos; i < text.Length && braceCount > 0; i++)
+            {
+                if (text[i] == '{') braceCount++;
+                else if (text[i] == '}') braceCount--;
+                endPos = i;
+            }
+
+            if (braceCount == 0)
+            {
+                var tradersSection = text.Substring(startPos, endPos - startPos);
+                
+                // Try TWO patterns:
+                // Pattern 1: With comment: // Trader name\n 'ID': {
+                var rgTraderWithComment = new Regex(@"//\s*(.+?)\r?\n\s*['""]?([A-Za-z0-9]+)['""]?\s*:\s*\{", RegexOptions.Multiline);
+                
+                // Pattern 2: Without comment: 'ID': {
+                var rgTraderNoComment = new Regex(@"['""]([A-Za-z0-9]+)['""]?\s*:\s*\{", RegexOptions.Multiline);
+
+                System.Diagnostics.Debug.WriteLine($"DEBUG ParseTradersConfig: Looking for traders in {tradersSection.Length} chars");
+                
+                var traderMatches = rgTraderWithComment.Matches(tradersSection);
+                System.Diagnostics.Debug.WriteLine($"DEBUG ParseTradersConfig: Found {traderMatches.Count} trader matches WITH comments");
+                
+                if (traderMatches.Count == 0)
+                {
+                    // Try without comments
+                    System.Diagnostics.Debug.WriteLine("DEBUG ParseTradersConfig: Trying pattern WITHOUT comments...");
+                    var noCommentMatches = rgTraderNoComment.Matches(tradersSection);
+                    System.Diagnostics.Debug.WriteLine($"DEBUG ParseTradersConfig: Found {noCommentMatches.Count} trader matches WITHOUT comments");
+                    
+                    foreach (Match m in noCommentMatches)
+                    {
+                        var traderId = m.Groups[1].Value.Trim();
+                        
+                        // Skip if it's 'ragfair' (special case)
+                        if (traderId.Equals("ragfair", StringComparison.OrdinalIgnoreCase))
+                        {
+                            var traderName = "Flea Market (Ragfair)";
+                            System.Diagnostics.Debug.WriteLine($"DEBUG ParseTradersConfig: Processing trader '{traderName}' with ID '{traderId}'");
+                            
+                            var trader = new TraderConfig
+                            {
+                                TraderId = traderId,
+                                TraderName = traderName
+                            };
+                            
+                            // Find trader config block and parse access_via
+                            int traderStart = m.Index + m.Length;
+                            int traderBraceCount = 1;
+                            int traderEnd = traderStart;
+
+                            for (int i = traderStart; i < tradersSection.Length && traderBraceCount > 0; i++)
+                            {
+                                if (tradersSection[i] == '{') traderBraceCount++;
+                                else if (tradersSection[i] == '}') traderBraceCount--;
+                                traderEnd = i;
+                            }
+
+                            if (traderBraceCount == 0)
+                            {
+                                var traderContent = tradersSection.Substring(traderStart, traderEnd - traderStart);
+                                trader.AccessVia = ParseStringArrayFromContent(traderContent, "access_via");
+                                System.Diagnostics.Debug.WriteLine($"DEBUG ParseTradersConfig: Trader '{traderName}' has {trader.AccessVia.Count} access locations");
+                            }
+                            
+                            if (!result.ContainsKey(traderId))
+                            {
+                                result[traderId] = trader;
+                                System.Diagnostics.Debug.WriteLine($"DEBUG ParseTradersConfig: ? Added trader '{traderName}'");
+                            }
+                        }
+                        else
+                        {
+                            // Try to get known trader name from dictionary
+                            var traderName = GetTraderName(traderId);
+                            System.Diagnostics.Debug.WriteLine($"DEBUG ParseTradersConfig: Processing trader with ID '{traderId}' (name: {traderName})");
+                            
+                            var trader = new TraderConfig
+                            {
+                                TraderId = traderId,
+                                TraderName = traderName
+                            };
+
+                            // Find trader config block
+                            int traderStart = m.Index + m.Length;
+                            int traderBraceCount = 1;
+                            int traderEnd = traderStart;
+
+                            for (int i = traderStart; i < tradersSection.Length && traderBraceCount > 0; i++)
+                            {
+                                if (tradersSection[i] == '{') traderBraceCount++;
+                                else if (tradersSection[i] == '}') traderBraceCount--;
+                                traderEnd = i;
+                            }
+
+                            if (traderBraceCount == 0)
+                            {
+                                var traderContent = tradersSection.Substring(traderStart, traderEnd - traderStart);
+                                trader.AccessVia = ParseStringArrayFromContent(traderContent, "access_via");
+                                System.Diagnostics.Debug.WriteLine($"DEBUG ParseTradersConfig: Trader '{traderName}' has {trader.AccessVia.Count} access locations");
+                            }
+
+                            if (!result.ContainsKey(traderId))
+                            {
+                                result[traderId] = trader;
+                                System.Diagnostics.Debug.WriteLine($"DEBUG ParseTradersConfig: ? Added trader '{traderName}'");
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    // Process traders WITH comments (original code)
+                    foreach (Match m in traderMatches)
+                    {
+                        var traderName = m.Groups[1].Value.Trim();
+                        var traderId = m.Groups[2].Value.Trim();
+
+                        System.Diagnostics.Debug.WriteLine($"DEBUG ParseTradersConfig: Processing trader '{traderName}' with ID '{traderId}'");
+
+                        var trader = new TraderConfig
+                        {
+                            TraderId = traderId,
+                            TraderName = traderName
+                        };
+
+                        // Find trader config block
+                        int traderStart = m.Index + m.Length;
+                        int traderBraceCount = 1;
+                        int traderEnd = traderStart;
+
+                        for (int i = traderStart; i < tradersSection.Length && traderBraceCount > 0; i++)
+                        {
+                            if (tradersSection[i] == '{') traderBraceCount++;
+                            else if (tradersSection[i] == '}') traderBraceCount--;
+                            traderEnd = i;
+                        }
+
+                        if (traderBraceCount == 0)
+                        {
+                            var traderContent = tradersSection.Substring(traderStart, traderEnd - traderStart);
+
+                            // Parse access_via
+                            trader.AccessVia = ParseStringArrayFromContent(traderContent, "access_via");
+                            System.Diagnostics.Debug.WriteLine($"DEBUG ParseTradersConfig: Trader '{traderName}' has {trader.AccessVia.Count} access locations");
+
+                            // Parse override_description
+                            var rgOverride = new Regex(@"override_description\s*:\s*(true|false)", RegexOptions.IgnoreCase);
+                            var mOverride = rgOverride.Match(traderContent);
+                            if (mOverride.Success)
+                            {
+                                trader.OverrideDescription = mOverride.Groups[1].Value.Equals("true", StringComparison.OrdinalIgnoreCase);
+                            }
+                        }
+
+                        if (!result.ContainsKey(traderId))
+                        {
+                            result[traderId] = trader;
+                            System.Diagnostics.Debug.WriteLine($"DEBUG ParseTradersConfig: ? Added trader '{traderName}'");
+                        }
+                    }
+                }
+            }
+
+            System.Diagnostics.Debug.WriteLine($"DEBUG ParseTradersConfig: ===== FINAL RESULT: {result.Count} traders parsed =====");
+            return result;
+        }
+
+        private static List<string> ParseStringArrayFromContent(string content, string fieldName)
+        {
+            var result = new List<string>();
+            var pattern = fieldName + @"\s*:\s*\[((?:[^[\]]*(?:\[[^\]]*\][^[\]]*)*))\]";
+            var match = Regex.Match(content, pattern, RegexOptions.Singleline | RegexOptions.IgnoreCase);
+
+            if (match.Success)
+            {
+                var arrayContent = match.Groups[1].Value;
+                var rgItem = new Regex(@"['""]([^'""]+)['""]");
+                foreach (Match m in rgItem.Matches(arrayContent))
+                {
+                    result.Add(m.Groups[1].Value.Trim());
+                }
+            }
+
+            return result;
+        }
+
+        private static Dictionary<string, Dictionary<string, List<string>>> ParseExfiltrations(string text)
+        {
+            var result = new Dictionary<string, Dictionary<string, List<string>>>();
+            var rgExfils = new Regex(@"exfiltrations\s*:\s*\{", RegexOptions.IgnoreCase);
+            var match = rgExfils.Match(text);
+
+            if (!match.Success)
+            {
+                System.Diagnostics.Debug.WriteLine("DEBUG ParseExfiltrations: exfiltrations not found in config");
+                return result;
+            }
+
+            System.Diagnostics.Debug.WriteLine("DEBUG ParseExfiltrations: Found exfiltrations section");
+
+            // Extract entire exfiltrations section
+            int braceCount = 1;
+            int startPos = match.Index + match.Length;
+            int endPos = startPos;
+
+            for (int i = startPos; i < text.Length && braceCount > 0; i++)
+            {
+                if (text[i] == '{') braceCount++;
+                else if (text[i] == '}') braceCount--;
+                endPos = i;
+            }
+
+            if (braceCount == 0)
+            {
+                var exfilsSection = text.Substring(startPos, endPos - startPos);
+                System.Diagnostics.Debug.WriteLine($"DEBUG ParseExfiltrations: Extracted section length={exfilsSection.Length}");
+                
+                // Find each map section: mapname: { ... }
+                var rgMap = new Regex(@"([A-Za-z0-9_]+)\s*:\s*\{", RegexOptions.Multiline);
+                var mapMatches = rgMap.Matches(exfilsSection);
+                System.Diagnostics.Debug.WriteLine($"DEBUG ParseExfiltrations: Found {mapMatches.Count} map sections");
+
+                foreach (Match mapMatch in mapMatches)
+                {
+                    var mapName = mapMatch.Groups[1].Value.Trim();
+                    
+                    // Extract this map's content
+                    int mapStart = mapMatch.Index + mapMatch.Length;
+                    int mapBraceCount = 1;
+                    int mapEnd = mapStart;
+
+                    for (int i = mapStart; i < exfilsSection.Length && mapBraceCount > 0; i++)
+                    {
+                        if (exfilsSection[i] == '{') mapBraceCount++;
+                        else if (exfilsSection[i] == '}') mapBraceCount--;
+                        mapEnd = i;
+                    }
+
+                    if (mapBraceCount == 0)
+                    {
+                        var mapContent = exfilsSection.Substring(mapStart, mapEnd - mapStart);
+                        System.Diagnostics.Debug.WriteLine($"DEBUG ParseExfiltrations: Processing map '{mapName}', content length={mapContent.Length}");
+                        
+                        var mapExfils = new Dictionary<string, List<string>>();
+                        
+                        // Match: ExfilName: ['Destination1', 'Destination2'],
+                        // Handle BOTH formats:
+                        // - Quoted names (can have spaces, hyphens, anything): 'Gate 3', ' V-Ex_light'
+                        // - Unquoted names (alphanumeric + underscore): Exit_E10_coop
+                        // ALSO support string format: 'Gate 3': 'FactoryZB-1013' (convert to array)
+                        
+                        // First try array format: name: [...]
+                        var rgExfilArray = new Regex(@"(?:['""]([^'""]+)['""]|([A-Za-z0-9_-]+))\s*:\s*\[([^\]]*)\]", RegexOptions.Multiline);
+                        var exfilMatches = rgExfilArray.Matches(mapContent);
+                        System.Diagnostics.Debug.WriteLine($"DEBUG ParseExfiltrations: Found {exfilMatches.Count} array-format exfils in '{mapName}'");
+                        
+                        foreach (Match exfilMatch in exfilMatches)
+                        {
+                            // Get exfil name from either quoted or unquoted group
+                            var exfilName = exfilMatch.Groups[1].Success ? exfilMatch.Groups[1].Value : exfilMatch.Groups[2].Value;
+                            exfilName = exfilName.Trim();
+                            System.Diagnostics.Debug.WriteLine($"DEBUG ParseExfiltrations: Found exfil name='{exfilName}'");
+                            
+                            // Parse destinations array
+                            var destContent = exfilMatch.Groups[3].Value;
+                            var destinations = new List<string>();
+                            var rgDest = new Regex(@"['""]([^'""]+)['""]");
+                            foreach (Match destMatch in rgDest.Matches(destContent))
+                            {
+                                destinations.Add(destMatch.Groups[1].Value.Trim());
+                            }
+							
+							if (destinations.Count > 0)
+                            {
+                                mapExfils[exfilName] = destinations;
+                                System.Diagnostics.Debug.WriteLine($"DEBUG ParseExfiltrations: ? {mapName}/{exfilName} ? [{string.Join(", ", destinations)}]");
+                            }
+                        }
+                        
+                        // Also try string format: name: 'destination' (convert to single-item array)
+                        var rgExfilString = new Regex(@"(?:['""]([^'""]+)['""]|([A-Za-z0-9_-]+))\s*:\s*['""]([^'""]+)['""]", RegexOptions.Multiline);
+                        var exfilStringMatches = rgExfilString.Matches(mapContent);
+                        System.Diagnostics.Debug.WriteLine($"DEBUG ParseExfiltrations: Found {exfilStringMatches.Count} string-format exfils in '{mapName}'");
+                        
+                        foreach (Match exfilMatch in exfilStringMatches)
+                        {
+                            // Get exfil name from either quoted or unquoted group
+                            var exfilName = exfilMatch.Groups[1].Success ? exfilMatch.Groups[1].Value : exfilMatch.Groups[2].Value;
+                            exfilName = exfilName.Trim();
+                            
+                            // Skip if already added from array format
+                            if (mapExfils.ContainsKey(exfilName))
+                                continue;
+                            
+                            // Get single destination and create array with one item
+                            var destination = exfilMatch.Groups[3].Value.Trim();
+                            mapExfils[exfilName] = new List<string> { destination };
+                            System.Diagnostics.Debug.WriteLine($"DEBUG ParseExfiltrations: ? {mapName}/{exfilName} ? [{destination}] (string format)");
+                        }
+
+                        if (mapExfils.Count > 0)
+                        {
+                            result[mapName] = mapExfils;
+                            System.Diagnostics.Debug.WriteLine($"DEBUG ParseExfiltrations: ? Map '{mapName}' has {mapExfils.Count} exfils");
+                        }
+                    }
+                }
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("DEBUG ParseExfiltrations: Brace counting failed!");
+            }
+
+            System.Diagnostics.Debug.WriteLine($"DEBUG ParseExfiltrations: ===== FINAL RESULT: {result.Count} maps with exfils =====");
+            return result;
+        }
+
+        private static Dictionary<string, Dictionary<string, List<string>>> ParseInfiltrations(string text)
+        {
+            var result = new Dictionary<string, Dictionary<string, List<string>>>();
+            var rgInfils = new Regex(@"infiltrations\s*:\s*\{", RegexOptions.IgnoreCase);
+            var match = rgInfils.Match(text);
+
+            if (!match.Success)
+                return result;
+
+            int braceCount = 1;
+            int startPos = match.Index + match.Length;
+            int endPos = startPos;
+
+            for (int i = startPos; i < text.Length && braceCount > 0; i++)
+            {
+                if (text[i] == '{') braceCount++;
+                else if (text[i] == '}') braceCount--;
+                endPos = i;
+            }
+
+            if (braceCount == 0)
+            {
+                var infilsSection = text.Substring(startPos, endPos - startPos);
+                var rgLocation = new Regex(@"([A-Za-z0-9_]+)\s*:\s*\{", RegexOptions.Multiline);
+
+                foreach (Match m in rgLocation.Matches(infilsSection))
+                {
+                    var locationName = m.Groups[1].Value.Trim();
+                    var locationInfils = new Dictionary<string, List<string>>();
+
+                    int locStart = m.Index + m.Length;
+                    int locBraceCount = 1;
+                    int locEnd = locStart;
+
+                    for (int i = locStart; i < infilsSection.Length && locBraceCount > 0; i++)
+                    {
+                        if (infilsSection[i] == '{') locBraceCount++;
+                        else if (infilsSection[i] == '}') locBraceCount--;
+                        locEnd = i;
+                    }
+
+                    if (locBraceCount == 0)
+                    {
+                        var locContent = infilsSection.Substring(locStart, locEnd - locStart);
+                        var rgMap = new Regex(@"([A-Za-z0-9_]+)\s*:\s*\[((?:[^[\]]*(?:\[[^\]]*\][^[\]]*)*))\]", RegexOptions.Multiline);
+
+                        foreach (Match mm in rgMap.Matches(locContent))
+                        {
+                            var mapName = mm.Groups[1].Value.Trim();
+                            var spawnList = new List<string>();
+
+                            var spawnsContent = mm.Groups[2].Value;
+                            var rgSpawn = new Regex(@"['""]([^'""]+)['""]");
+                            foreach (Match sm in rgSpawn.Matches(spawnsContent))
+                            {
+                                spawnList.Add(sm.Groups[1].Value.Trim());
+                            }
+
+                            locationInfils[mapName] = spawnList;
+                        }
+                    }
+
+                    result[locationName] = locationInfils;
+                }
+            }
+
+            return result;
+        }
+
+        private static Dictionary<string, RestrictionItem> ParseRestrictionsInRaid(string text)
+        {
+            var result = new Dictionary<string, RestrictionItem>();
+            var rgRestrictions = new Regex(@"restrictions_in_raid\s*:\s*\{", RegexOptions.IgnoreCase);
+            var match = rgRestrictions.Match(text);
+
+            if (!match.Success)
+            {
+                System.Diagnostics.Debug.WriteLine("DEBUG ParseRestrictionsInRaid: restrictions_in_raid not found");
+                return result;
+            }
+            
+            System.Diagnostics.Debug.WriteLine("DEBUG ParseRestrictionsInRaid: Found restrictions_in_raid section");
+
+            int braceCount = 1;
+            int startPos = match.Index + match.Length;
+            int endPos = startPos;
+
+            for (int i = startPos; i < text.Length && braceCount > 0; i++)
+            {
+                if (text[i] == '{') braceCount++;
+                else if (text[i] == '}')
+                {
+                    braceCount--;
+                    if (braceCount == 0)
+                    {
+                        endPos = i;
+                        break;
+                    }
+                }
+            }
+
+            if (braceCount == 0)
+            {
+                var restrictionsSection = text.Substring(startPos, endPos - startPos);
+                System.Diagnostics.Debug.WriteLine($"DEBUG ParseRestrictionsInRaid: Extracted {restrictionsSection.Length} chars");
+                
+                // First try to match with comments to preserve original comment text
+                var rgItemWithComment = new Regex(@"//\s*(.+?)\r?\n\s*['""]([A-Za-z0-9]+)['""]?\s*:\s*\{[^\}]*Value\s*:\s*(\d+)", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+                var matchesWithComment = rgItemWithComment.Matches(restrictionsSection);
+                System.Diagnostics.Debug.WriteLine($"DEBUG ParseRestrictionsInRaid: Found {matchesWithComment.Count} restriction items WITH comments");
+
+                if (matchesWithComment.Count > 0)
+                {
+                    foreach (Match m in matchesWithComment)
+                    {
+                        var itemName = m.Groups[1].Value.Trim();
+                        var itemId = m.Groups[2].Value.Trim();
+                        var value = int.Parse(m.Groups[3].Value.Trim());
+
+                        result[itemId] = new RestrictionItem 
+                        { 
+                            Value = value,
+                            ItemName = itemName  // Preserve original comment text!
+                        };
+                        System.Diagnostics.Debug.WriteLine($"DEBUG ParseRestrictionsInRaid: ? {itemId} ({itemName}) = {value}");
+                    }
+                }
+                else
+                {
+                    // Fallback: without comments
+                    var rgItem = new Regex(@"['""]([A-Za-z0-9]+)['""]?\s*:\s*\{[^\}]*Value\s*:\s*(\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+                    var matches = rgItem.Matches(restrictionsSection);
+                    System.Diagnostics.Debug.WriteLine($"DEBUG ParseRestrictionsInRaid: Found {matches.Count} restriction items WITHOUT comments");
+
+                    foreach (Match m in matches)
+                    {
+                        var itemId = m.Groups[1].Value.Trim();
+                        var value = int.Parse(m.Groups[2].Value.Trim());
+
+                        result[itemId] = new RestrictionItem { Value = value };
+                        System.Diagnostics.Debug.WriteLine($"DEBUG ParseRestrictionsInRaid: ? {itemId} = {value}");
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        private static OffraidRegenConfig ParseOffraidRegenConfig(string text)
+        {
+            var config = new OffraidRegenConfig
+            {
+                Hydration = new RegenSetting { AccessVia = "*" },
+                Energy = new RegenSetting { AccessVia = "*" },
+                Health = new RegenSetting { AccessVia = "*" }
+            };
+
+            var rgRegen = new Regex(@"offraid_regen_config\s*:\s*\{", RegexOptions.IgnoreCase);
+            var match = rgRegen.Match(text);
+
+            if (!match.Success)
+                return config;
+
+            int braceCount = 1;
+            int startPos = match.Index + match.Length;
+            int endPos = startPos;
+
+            for (int i = startPos; i < text.Length && braceCount > 0; i++)
+            {
+                if (text[i] == '{') braceCount++;
+                else if (text[i] == '}') braceCount--;
+                endPos = i;
+            }
+
+            if (braceCount == 0)
+            {
+                var regenSection = text.Substring(startPos, endPos - startPos);
+
+                // Parse hydration - support both string and array formats
+                config.Hydration = ParseRegenSetting(regenSection, "hydration");
+                config.Energy = ParseRegenSetting(regenSection, "energy");
+                config.Health = ParseRegenSetting(regenSection, "health");
+            }
+
+            return config;
+        }
+
+        private static RegenSetting ParseRegenSetting(string content, string settingName)
+        {
+            var setting = new RegenSetting { AccessVia = "*" };
+
+            // Try array format first: access_via: ['location1', 'location2']
+            var rgArray = new Regex(settingName + @"\s*:\s*\{\s*access_via\s*:\s*\[((?:[^[\]]*(?:\[[^\]]*\][^[\]]*)*))\]", RegexOptions.IgnoreCase);
+            var mArray = rgArray.Match(content);
+
+            if (mArray.Success)
+            {
+                var arrayContent = mArray.Groups[1].Value;
+                var rgItem = new Regex(@"['""]([^'""]+)['""]");
+                var locations = new List<string>();
+
+                foreach (Match m in rgItem.Matches(arrayContent))
+                {
+                    locations.Add(m.Groups[1].Value.Trim());
+                }
+
+                setting.AccessViaList = locations;
+                setting.AccessVia = string.Join(", ", locations);
+                return setting;
+            }
+
+            // Try string format: access_via: 'location' or access_via: '*'
+            var rgString = new Regex(settingName + @"\s*:\s*\{\s*access_via\s*:\s*['""]([^'""]+)['""]", RegexOptions.IgnoreCase);
+            var mString = rgString.Match(content);
+
+            if (mString.Success)
+            {
+                setting.AccessVia = mString.Groups[1].Value.Trim();
+
+                if (setting.AccessVia != "*")
+                {
+                    setting.AccessViaList = setting.AccessVia.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(x => x.Trim()).ToList();
+                }
+            }
+
+            return setting;
+        }
+
+        public static string GetTraderName(string traderId)
+        {
+            if (KnownTraders.TryGetValue(traderId, out var name))
+                return name;
+            return traderId;
+        }
+    }
+}

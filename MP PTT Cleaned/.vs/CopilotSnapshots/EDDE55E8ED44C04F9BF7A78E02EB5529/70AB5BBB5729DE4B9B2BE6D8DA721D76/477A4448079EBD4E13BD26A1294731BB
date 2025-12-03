@@ -1,0 +1,649 @@
+﻿namespace MP_PTT
+{
+    partial class Form1
+    {
+        private System.ComponentModel.IContainer components = null;
+
+        private System.Windows.Forms.TabControl tabControlMain;
+        private System.Windows.Forms.TabPage tabBase;
+        private System.Windows.Forms.TabPage tabTraders;
+        private System.Windows.Forms.TabPage tabStashes;
+        private System.Windows.Forms.TabPage tabExfils;
+        private System.Windows.Forms.TabPage tabInfils;
+        private System.Windows.Forms.TabPage tabOffraidPositions;
+        private System.Windows.Forms.TabPage tabMapVisualization;
+
+        // Base tab controls
+        private System.Windows.Forms.Label lblBaseSelect;
+        private System.Windows.Forms.ComboBox cmbBaseLocations;
+        private System.Windows.Forms.TextBox txtBaseLocation;
+        private System.Windows.Forms.Button btnOpenConfig;
+        private System.Windows.Forms.Label lblCurrentConfig;
+        private System.Windows.Forms.Button btnSaveAll;
+        private System.Windows.Forms.Label lblMainStashAccess;
+        private System.Windows.Forms.CheckedListBox clbMainStashAccess;
+        private System.Windows.Forms.GroupBox grpRestrictions;
+        private System.Windows.Forms.DataGridView dgvRestrictions;
+        private System.Windows.Forms.Button btnAddRestriction;
+        private System.Windows.Forms.Button btnDeleteRestriction;
+        private System.Windows.Forms.GroupBox grpOffraidRegen;
+        private System.Windows.Forms.Label lblHydration;
+        private System.Windows.Forms.CheckedListBox clbHydrationAccess;
+        private System.Windows.Forms.Label lblEnergy;
+        private System.Windows.Forms.CheckedListBox clbEnergyAccess;
+        private System.Windows.Forms.Label lblHealth;
+        private System.Windows.Forms.CheckedListBox clbHealthAccess;
+
+        // Traders
+        private System.Windows.Forms.DataGridView dgvTraders;
+        private System.Windows.Forms.Button btnAddTrader;
+        private System.Windows.Forms.Button btnDeleteTrader;
+
+        // Stashes
+        private System.Windows.Forms.DataGridView dgvStashes;
+        private System.Windows.Forms.Button btnAddStash;
+        private System.Windows.Forms.Button btnDeleteStash;
+
+        // Exfils
+        private System.Windows.Forms.DataGridView dgvExfils;
+        private System.Windows.Forms.TreeView treeAvailableExfils;
+        private System.Windows.Forms.Button btnAddExfil;
+        private System.Windows.Forms.Button btnDeleteExfil;
+
+        // Infils
+        private System.Windows.Forms.DataGridView dgvInfils;
+        private System.Windows.Forms.Button btnAddInfil;
+        private System.Windows.Forms.Button btnDeleteInfil;
+
+        // Offraid Positions
+        private System.Windows.Forms.DataGridView dgvOffraidPositions;
+        private System.Windows.Forms.Button btnAddOffraidPosition;
+        private System.Windows.Forms.Button btnDeleteOffraidPosition;
+
+        // Map Visualization
+        private System.Windows.Forms.Button btnOpenMapVisualization;
+        private System.Windows.Forms.Label lblMapInfo;
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Windows Form Designer generated code
+
+        private void InitializeComponent()
+        {
+            this.tabControlMain = new System.Windows.Forms.TabControl();
+            this.tabBase = new System.Windows.Forms.TabPage();
+            this.lblBaseSelect = new System.Windows.Forms.Label();
+            this.cmbBaseLocations = new System.Windows.Forms.ComboBox();
+            this.txtBaseLocation = new System.Windows.Forms.TextBox();
+            this.btnOpenConfig = new System.Windows.Forms.Button();
+            this.lblCurrentConfig = new System.Windows.Forms.Label();
+            this.btnSaveAll = new System.Windows.Forms.Button();
+            this.lblMainStashAccess = new System.Windows.Forms.Label();
+            this.clbMainStashAccess = new System.Windows.Forms.CheckedListBox();
+            this.grpRestrictions = new System.Windows.Forms.GroupBox();
+            this.dgvRestrictions = new System.Windows.Forms.DataGridView();
+            this.btnAddRestriction = new System.Windows.Forms.Button();
+            this.btnDeleteRestriction = new System.Windows.Forms.Button();
+            this.grpOffraidRegen = new System.Windows.Forms.GroupBox();
+            this.lblHydration = new System.Windows.Forms.Label();
+            this.clbHydrationAccess = new System.Windows.Forms.CheckedListBox();
+            this.lblEnergy = new System.Windows.Forms.Label();
+            this.clbEnergyAccess = new System.Windows.Forms.CheckedListBox();
+            this.lblHealth = new System.Windows.Forms.Label();
+            this.clbHealthAccess = new System.Windows.Forms.CheckedListBox();
+            this.tabTraders = new System.Windows.Forms.TabPage();
+            this.dgvTraders = new System.Windows.Forms.DataGridView();
+            this.btnAddTrader = new System.Windows.Forms.Button();
+            this.btnDeleteTrader = new System.Windows.Forms.Button();
+            this.tabStashes = new System.Windows.Forms.TabPage();
+            this.dgvStashes = new System.Windows.Forms.DataGridView();
+            this.btnAddStash = new System.Windows.Forms.Button();
+            this.btnDeleteStash = new System.Windows.Forms.Button();
+            this.tabExfils = new System.Windows.Forms.TabPage();
+            this.dgvExfils = new System.Windows.Forms.DataGridView();
+            this.treeAvailableExfils = new System.Windows.Forms.TreeView();
+            this.btnAddExfil = new System.Windows.Forms.Button();
+            this.btnDeleteExfil = new System.Windows.Forms.Button();
+            this.tabInfils = new System.Windows.Forms.TabPage();
+            this.dgvInfils = new System.Windows.Forms.DataGridView();
+            this.btnAddInfil = new System.Windows.Forms.Button();
+            this.btnDeleteInfil = new System.Windows.Forms.Button();
+            this.tabOffraidPositions = new System.Windows.Forms.TabPage();
+            this.dgvOffraidPositions = new System.Windows.Forms.DataGridView();
+            this.btnAddOffraidPosition = new System.Windows.Forms.Button();
+            this.btnDeleteOffraidPosition = new System.Windows.Forms.Button();
+            this.tabMapVisualization = new System.Windows.Forms.TabPage();
+            this.btnOpenMapVisualization = new System.Windows.Forms.Button();
+            this.lblMapInfo = new System.Windows.Forms.Label();
+            this.tabControlMain.SuspendLayout();
+            this.tabBase.SuspendLayout();
+            this.grpRestrictions.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvRestrictions)).BeginInit();
+            this.grpOffraidRegen.SuspendLayout();
+            this.tabTraders.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvTraders)).BeginInit();
+            this.tabStashes.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvStashes)).BeginInit();
+            this.tabExfils.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvExfils)).BeginInit();
+            this.tabInfils.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvInfils)).BeginInit();
+            this.tabOffraidPositions.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvOffraidPositions)).BeginInit();
+            this.tabMapVisualization.SuspendLayout();
+            this.SuspendLayout();
+            // 
+            // tabControlMain
+            // 
+            this.tabControlMain.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tabControlMain.Controls.Add(this.tabBase);
+            this.tabControlMain.Controls.Add(this.tabTraders);
+            this.tabControlMain.Controls.Add(this.tabStashes);
+            this.tabControlMain.Controls.Add(this.tabExfils);
+            this.tabControlMain.Controls.Add(this.tabInfils);
+            this.tabControlMain.Controls.Add(this.tabOffraidPositions);
+            this.tabControlMain.Controls.Add(this.tabMapVisualization);
+            this.tabControlMain.Location = new System.Drawing.Point(10, 12);
+            this.tabControlMain.Name = "tabControlMain";
+            this.tabControlMain.SelectedIndex = 0;
+            this.tabControlMain.Size = new System.Drawing.Size(1104, 759);
+            this.tabControlMain.TabIndex = 0;
+            // 
+            // tabBase
+            // 
+            this.tabBase.AutoScroll = true;
+            this.tabBase.Controls.Add(this.lblBaseSelect);
+            this.tabBase.Controls.Add(this.cmbBaseLocations);
+            this.tabBase.Controls.Add(this.txtBaseLocation);
+            this.tabBase.Controls.Add(this.btnOpenConfig);
+            this.tabBase.Controls.Add(this.lblCurrentConfig);
+            this.tabBase.Controls.Add(this.btnSaveAll);
+            this.tabBase.Controls.Add(this.lblMainStashAccess);
+            this.tabBase.Controls.Add(this.clbMainStashAccess);
+            this.tabBase.Controls.Add(this.grpRestrictions);
+            this.tabBase.Controls.Add(this.grpOffraidRegen);
+            this.tabBase.Location = new System.Drawing.Point(4, 22);
+            this.tabBase.Name = "tabBase";
+            this.tabBase.Padding = new System.Windows.Forms.Padding(10);
+            this.tabBase.Size = new System.Drawing.Size(1096, 733);
+            this.tabBase.TabIndex = 0;
+            this.tabBase.Text = "Base";
+            this.tabBase.UseVisualStyleBackColor = true;
+            // 
+            // lblBaseSelect
+            // 
+            this.lblBaseSelect.Location = new System.Drawing.Point(20, 20);
+            this.lblBaseSelect.Name = "lblBaseSelect";
+            this.lblBaseSelect.Size = new System.Drawing.Size(120, 20);
+            this.lblBaseSelect.TabIndex = 0;
+            this.lblBaseSelect.Text = "Starting Position:";
+            // 
+            // cmbBaseLocations
+            // 
+            this.cmbBaseLocations.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbBaseLocations.Location = new System.Drawing.Point(146, 18);
+            this.cmbBaseLocations.Name = "cmbBaseLocations";
+            this.cmbBaseLocations.Size = new System.Drawing.Size(404, 21);
+            this.cmbBaseLocations.TabIndex = 1;
+            this.cmbBaseLocations.SelectedIndexChanged += new System.EventHandler(this.cmbBaseLocations_SelectedIndexChanged);
+            // 
+            // txtBaseLocation
+            // 
+            this.txtBaseLocation.Location = new System.Drawing.Point(23, 37);
+            this.txtBaseLocation.Name = "txtBaseLocation";
+            this.txtBaseLocation.ReadOnly = true;
+            this.txtBaseLocation.Size = new System.Drawing.Size(231, 20);
+            this.txtBaseLocation.TabIndex = 2;
+            this.txtBaseLocation.TextChanged += new System.EventHandler(this.txtBaseLocation_TextChanged_1);
+            // 
+            // btnOpenConfig
+            // 
+            this.btnOpenConfig.Location = new System.Drawing.Point(867, 694);
+            this.btnOpenConfig.Name = "btnOpenConfig";
+            this.btnOpenConfig.Size = new System.Drawing.Size(80, 26);
+            this.btnOpenConfig.TabIndex = 6;
+            this.btnOpenConfig.Text = "Open Config";
+            this.btnOpenConfig.Click += new System.EventHandler(this.btnOpenConfig_Click);
+            // 
+            // lblCurrentConfig
+            // 
+            this.lblCurrentConfig.Location = new System.Drawing.Point(13, 703);
+            this.lblCurrentConfig.Name = "lblCurrentConfig";
+            this.lblCurrentConfig.Size = new System.Drawing.Size(791, 20);
+            this.lblCurrentConfig.TabIndex = 8;
+            this.lblCurrentConfig.Text = "No config loaded.";
+            // 
+            // btnSaveAll
+            // 
+            this.btnSaveAll.BackColor = System.Drawing.Color.LightGreen;
+            this.btnSaveAll.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.btnSaveAll.Location = new System.Drawing.Point(953, 694);
+            this.btnSaveAll.Name = "btnSaveAll";
+            this.btnSaveAll.Size = new System.Drawing.Size(117, 26);
+            this.btnSaveAll.TabIndex = 9;
+            this.btnSaveAll.Text = "Save All Changes";
+            this.btnSaveAll.UseVisualStyleBackColor = false;
+            this.btnSaveAll.Click += new System.EventHandler(this.btnSaveAll_Click);
+            // 
+            // lblMainStashAccess
+            // 
+            this.lblMainStashAccess.Location = new System.Drawing.Point(20, 80);
+            this.lblMainStashAccess.Name = "lblMainStashAccess";
+            this.lblMainStashAccess.Size = new System.Drawing.Size(120, 20);
+            this.lblMainStashAccess.TabIndex = 10;
+            this.lblMainStashAccess.Text = "Hideout Positions:";
+            this.lblMainStashAccess.Click += new System.EventHandler(this.lblMainStashAccess_Click);
+            // 
+            // clbMainStashAccess
+            // 
+            this.clbMainStashAccess.CheckOnClick = true;
+            this.clbMainStashAccess.FormattingEnabled = true;
+            this.clbMainStashAccess.Location = new System.Drawing.Point(150, 80);
+            this.clbMainStashAccess.Name = "clbMainStashAccess";
+            this.clbMainStashAccess.Size = new System.Drawing.Size(400, 349);
+            this.clbMainStashAccess.TabIndex = 11;
+            // 
+            // grpRestrictions
+            // 
+            this.grpRestrictions.Controls.Add(this.dgvRestrictions);
+            this.grpRestrictions.Controls.Add(this.btnAddRestriction);
+            this.grpRestrictions.Controls.Add(this.btnDeleteRestriction);
+            this.grpRestrictions.Location = new System.Drawing.Point(13, 438);
+            this.grpRestrictions.Name = "grpRestrictions";
+            this.grpRestrictions.Size = new System.Drawing.Size(1057, 250);
+            this.grpRestrictions.TabIndex = 12;
+            this.grpRestrictions.TabStop = false;
+            this.grpRestrictions.Text = "Restrictions in Raid";
+            // 
+            // dgvRestrictions
+            // 
+            this.dgvRestrictions.AllowUserToAddRows = false;
+            this.dgvRestrictions.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dgvRestrictions.Location = new System.Drawing.Point(10, 20);
+            this.dgvRestrictions.Name = "dgvRestrictions";
+            this.dgvRestrictions.RowHeadersVisible = false;
+            this.dgvRestrictions.Size = new System.Drawing.Size(453, 184);
+            this.dgvRestrictions.TabIndex = 0;
+            // 
+            // btnAddRestriction
+            // 
+            this.btnAddRestriction.Location = new System.Drawing.Point(10, 210);
+            this.btnAddRestriction.Name = "btnAddRestriction";
+            this.btnAddRestriction.Size = new System.Drawing.Size(80, 26);
+            this.btnAddRestriction.TabIndex = 1;
+            this.btnAddRestriction.Text = "Add";
+            this.btnAddRestriction.Click += new System.EventHandler(this.btnAddRestriction_Click);
+            // 
+            // btnDeleteRestriction
+            // 
+            this.btnDeleteRestriction.Location = new System.Drawing.Point(100, 210);
+            this.btnDeleteRestriction.Name = "btnDeleteRestriction";
+            this.btnDeleteRestriction.Size = new System.Drawing.Size(80, 26);
+            this.btnDeleteRestriction.TabIndex = 2;
+            this.btnDeleteRestriction.Text = "Delete";
+            this.btnDeleteRestriction.Click += new System.EventHandler(this.btnDeleteRestriction_Click);
+            // 
+            // grpOffraidRegen
+            // 
+            this.grpOffraidRegen.Controls.Add(this.lblHydration);
+            this.grpOffraidRegen.Controls.Add(this.clbHydrationAccess);
+            this.grpOffraidRegen.Controls.Add(this.lblEnergy);
+            this.grpOffraidRegen.Controls.Add(this.clbEnergyAccess);
+            this.grpOffraidRegen.Controls.Add(this.lblHealth);
+            this.grpOffraidRegen.Controls.Add(this.clbHealthAccess);
+            this.grpOffraidRegen.Location = new System.Drawing.Point(570, 15);
+            this.grpOffraidRegen.Name = "grpOffraidRegen";
+            this.grpOffraidRegen.Size = new System.Drawing.Size(500, 417);
+            this.grpOffraidRegen.TabIndex = 13;
+            this.grpOffraidRegen.TabStop = false;
+            this.grpOffraidRegen.Text = "Off-raid Regeneration (check locations or leave all unchecked for everywhere)";
+            // 
+            // lblHydration
+            // 
+            this.lblHydration.Location = new System.Drawing.Point(20, 275);
+            this.lblHydration.Name = "lblHydration";
+            this.lblHydration.Size = new System.Drawing.Size(80, 20);
+            this.lblHydration.TabIndex = 5;
+            this.lblHydration.Text = "Hydration:";
+            // 
+            // clbHydrationAccess
+            // 
+            this.clbHydrationAccess.CheckOnClick = true;
+            this.clbHydrationAccess.FormattingEnabled = true;
+            this.clbHydrationAccess.Location = new System.Drawing.Point(20, 295);
+            this.clbHydrationAccess.Name = "clbHydrationAccess";
+            this.clbHydrationAccess.Size = new System.Drawing.Size(460, 94);
+            this.clbHydrationAccess.TabIndex = 8;
+            // 
+            // lblEnergy
+            // 
+            this.lblEnergy.Location = new System.Drawing.Point(20, 150);
+            this.lblEnergy.Name = "lblEnergy";
+            this.lblEnergy.Size = new System.Drawing.Size(80, 20);
+            this.lblEnergy.TabIndex = 3;
+            this.lblEnergy.Text = "Energy:";
+            // 
+            // clbEnergyAccess
+            // 
+            this.clbEnergyAccess.CheckOnClick = true;
+            this.clbEnergyAccess.FormattingEnabled = true;
+            this.clbEnergyAccess.Location = new System.Drawing.Point(20, 170);
+            this.clbEnergyAccess.Name = "clbEnergyAccess";
+            this.clbEnergyAccess.Size = new System.Drawing.Size(460, 94);
+            this.clbEnergyAccess.TabIndex = 7;
+            // 
+            // lblHealth
+            // 
+            this.lblHealth.Location = new System.Drawing.Point(20, 25);
+            this.lblHealth.Name = "lblHealth";
+            this.lblHealth.Size = new System.Drawing.Size(80, 20);
+            this.lblHealth.TabIndex = 1;
+            this.lblHealth.Text = "Health:";
+            // 
+            // clbHealthAccess
+            // 
+            this.clbHealthAccess.CheckOnClick = true;
+            this.clbHealthAccess.FormattingEnabled = true;
+            this.clbHealthAccess.Location = new System.Drawing.Point(20, 45);
+            this.clbHealthAccess.Name = "clbHealthAccess";
+            this.clbHealthAccess.Size = new System.Drawing.Size(460, 94);
+            this.clbHealthAccess.TabIndex = 6;
+            // 
+            // tabTraders
+            // 
+            this.tabTraders.Controls.Add(this.dgvTraders);
+            this.tabTraders.Controls.Add(this.btnAddTrader);
+            this.tabTraders.Controls.Add(this.btnDeleteTrader);
+            this.tabTraders.Location = new System.Drawing.Point(4, 22);
+            this.tabTraders.Name = "tabTraders";
+            this.tabTraders.Padding = new System.Windows.Forms.Padding(10);
+            this.tabTraders.Size = new System.Drawing.Size(1096, 733);
+            this.tabTraders.TabIndex = 1;
+            this.tabTraders.Text = "Traders";
+            this.tabTraders.UseVisualStyleBackColor = true;
+            // 
+            // dgvTraders
+            // 
+            this.dgvTraders.AllowUserToAddRows = false;
+            this.dgvTraders.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dgvTraders.Location = new System.Drawing.Point(20, 20);
+            this.dgvTraders.Name = "dgvTraders";
+            this.dgvTraders.RowHeadersVisible = false;
+            this.dgvTraders.Size = new System.Drawing.Size(1054, 668);
+            this.dgvTraders.TabIndex = 0;
+            // 
+            // btnAddTrader
+            // 
+            this.btnAddTrader.Location = new System.Drawing.Point(13, 694);
+            this.btnAddTrader.Name = "btnAddTrader";
+            this.btnAddTrader.Size = new System.Drawing.Size(80, 26);
+            this.btnAddTrader.TabIndex = 1;
+            this.btnAddTrader.Text = "Add";
+            this.btnAddTrader.Click += new System.EventHandler(this.btnAddTrader_Click);
+            // 
+            // btnDeleteTrader
+            // 
+            this.btnDeleteTrader.Location = new System.Drawing.Point(99, 694);
+            this.btnDeleteTrader.Name = "btnDeleteTrader";
+            this.btnDeleteTrader.Size = new System.Drawing.Size(80, 26);
+            this.btnDeleteTrader.TabIndex = 2;
+            this.btnDeleteTrader.Text = "Delete";
+            this.btnDeleteTrader.Click += new System.EventHandler(this.btnDeleteTrader_Click);
+            // 
+            // tabStashes
+            // 
+            this.tabStashes.Controls.Add(this.dgvStashes);
+            this.tabStashes.Controls.Add(this.btnAddStash);
+            this.tabStashes.Controls.Add(this.btnDeleteStash);
+            this.tabStashes.Location = new System.Drawing.Point(4, 22);
+            this.tabStashes.Name = "tabStashes";
+            this.tabStashes.Padding = new System.Windows.Forms.Padding(10);
+            this.tabStashes.Size = new System.Drawing.Size(1096, 733);
+            this.tabStashes.TabIndex = 2;
+            this.tabStashes.Text = "Stashes";
+            // 
+            // dgvStashes
+            // 
+            this.dgvStashes.AllowUserToAddRows = false;
+            this.dgvStashes.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dgvStashes.Location = new System.Drawing.Point(20, 20);
+            this.dgvStashes.Name = "dgvStashes";
+            this.dgvStashes.RowHeadersVisible = false;
+            this.dgvStashes.Size = new System.Drawing.Size(862, 668);
+            this.dgvStashes.TabIndex = 0;
+            // 
+            // btnAddStash
+            // 
+            this.btnAddStash.Location = new System.Drawing.Point(13, 694);
+            this.btnAddStash.Name = "btnAddStash";
+            this.btnAddStash.Size = new System.Drawing.Size(80, 26);
+            this.btnAddStash.TabIndex = 1;
+            this.btnAddStash.Text = "Add";
+            this.btnAddStash.Click += new System.EventHandler(this.btnAddStash_Click);
+            // 
+            // btnDeleteStash
+            // 
+            this.btnDeleteStash.Location = new System.Drawing.Point(99, 694);
+            this.btnDeleteStash.Name = "btnDeleteStash";
+            this.btnDeleteStash.Size = new System.Drawing.Size(80, 26);
+            this.btnDeleteStash.TabIndex = 2;
+            this.btnDeleteStash.Text = "Delete";
+            this.btnDeleteStash.Click += new System.EventHandler(this.btnDeleteStash_Click);
+            // 
+            // tabExfils
+            // 
+            this.tabExfils.Controls.Add(this.dgvExfils);
+            this.tabExfils.Controls.Add(this.treeAvailableExfils);
+            this.tabExfils.Controls.Add(this.btnAddExfil);
+            this.tabExfils.Controls.Add(this.btnDeleteExfil);
+            this.tabExfils.Location = new System.Drawing.Point(4, 22);
+            this.tabExfils.Name = "tabExfils";
+            this.tabExfils.Padding = new System.Windows.Forms.Padding(10);
+            this.tabExfils.Size = new System.Drawing.Size(1096, 733);
+            this.tabExfils.TabIndex = 3;
+            this.tabExfils.Text = "Exfil";
+            this.tabExfils.UseVisualStyleBackColor = true;
+            // 
+            // dgvExfils
+            // 
+            this.dgvExfils.AllowUserToAddRows = false;
+            this.dgvExfils.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.dgvExfils.Location = new System.Drawing.Point(20, 20);
+            this.dgvExfils.Name = "dgvExfils";
+            this.dgvExfils.RowHeadersVisible = false;
+            this.dgvExfils.Size = new System.Drawing.Size(769, 668);
+            this.dgvExfils.TabIndex = 0;
+            // 
+            // treeAvailableExfils
+            // 
+            this.treeAvailableExfils.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.treeAvailableExfils.CheckBoxes = true;
+            this.treeAvailableExfils.Location = new System.Drawing.Point(816, 20);
+            this.treeAvailableExfils.Name = "treeAvailableExfils";
+            this.treeAvailableExfils.Size = new System.Drawing.Size(258, 668);
+            this.treeAvailableExfils.TabIndex = 1;
+            // 
+            // btnAddExfil
+            // 
+            this.btnAddExfil.Location = new System.Drawing.Point(13, 694);
+            this.btnAddExfil.Name = "btnAddExfil";
+            this.btnAddExfil.Size = new System.Drawing.Size(100, 26);
+            this.btnAddExfil.TabIndex = 2;
+            this.btnAddExfil.Text = "Add Selected";
+            this.btnAddExfil.Click += new System.EventHandler(this.btnAddExfil_Click);
+            // 
+            // btnDeleteExfil
+            // 
+            this.btnDeleteExfil.Location = new System.Drawing.Point(119, 694);
+            this.btnDeleteExfil.Name = "btnDeleteExfil";
+            this.btnDeleteExfil.Size = new System.Drawing.Size(80, 26);
+            this.btnDeleteExfil.TabIndex = 3;
+            this.btnDeleteExfil.Text = "Delete";
+            this.btnDeleteExfil.Click += new System.EventHandler(this.btnDeleteExfil_Click);
+            // 
+            // tabInfils
+            // 
+            this.tabInfils.Controls.Add(this.dgvInfils);
+            this.tabInfils.Controls.Add(this.btnAddInfil);
+            this.tabInfils.Controls.Add(this.btnDeleteInfil);
+            this.tabInfils.Location = new System.Drawing.Point(4, 22);
+            this.tabInfils.Name = "tabInfils";
+            this.tabInfils.Padding = new System.Windows.Forms.Padding(10);
+            this.tabInfils.Size = new System.Drawing.Size(1096, 733);
+            this.tabInfils.TabIndex = 4;
+            this.tabInfils.Text = "Infil";
+            this.tabInfils.UseVisualStyleBackColor = true;
+            // 
+            // dgvInfils
+            // 
+            this.dgvInfils.AllowUserToAddRows = false;
+            this.dgvInfils.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dgvInfils.Location = new System.Drawing.Point(20, 20);
+            this.dgvInfils.Name = "dgvInfils";
+            this.dgvInfils.RowHeadersVisible = false;
+            this.dgvInfils.Size = new System.Drawing.Size(760, 668);
+            this.dgvInfils.TabIndex = 0;
+            // 
+            // btnAddInfil
+            // 
+            this.btnAddInfil.Location = new System.Drawing.Point(13, 694);
+            this.btnAddInfil.Name = "btnAddInfil";
+            this.btnAddInfil.Size = new System.Drawing.Size(80, 26);
+            this.btnAddInfil.TabIndex = 1;
+            this.btnAddInfil.Text = "Add";
+            this.btnAddInfil.Click += new System.EventHandler(this.btnAddInfil_Click);
+            // 
+            // btnDeleteInfil
+            // 
+            this.btnDeleteInfil.Location = new System.Drawing.Point(99, 694);
+            this.btnDeleteInfil.Name = "btnDeleteInfil";
+            this.btnDeleteInfil.Size = new System.Drawing.Size(80, 26);
+            this.btnDeleteInfil.TabIndex = 2;
+            this.btnDeleteInfil.Text = "Delete";
+            this.btnDeleteInfil.Click += new System.EventHandler(this.btnDeleteInfil_Click);
+            // 
+            // tabOffraidPositions
+            // 
+            this.tabOffraidPositions.Controls.Add(this.dgvOffraidPositions);
+            this.tabOffraidPositions.Controls.Add(this.btnAddOffraidPosition);
+            this.tabOffraidPositions.Controls.Add(this.btnDeleteOffraidPosition);
+            this.tabOffraidPositions.Location = new System.Drawing.Point(4, 22);
+            this.tabOffraidPositions.Name = "tabOffraidPositions";
+            this.tabOffraidPositions.Padding = new System.Windows.Forms.Padding(10);
+            this.tabOffraidPositions.Size = new System.Drawing.Size(1096, 733);
+            this.tabOffraidPositions.TabIndex = 6;
+            this.tabOffraidPositions.Text = "Off-raid Positions";
+            this.tabOffraidPositions.UseVisualStyleBackColor = true;
+            // 
+            // dgvOffraidPositions
+            // 
+            this.dgvOffraidPositions.AllowUserToAddRows = false;
+            this.dgvOffraidPositions.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dgvOffraidPositions.Location = new System.Drawing.Point(20, 20);
+            this.dgvOffraidPositions.Name = "dgvOffraidPositions";
+            this.dgvOffraidPositions.RowHeadersVisible = false;
+            this.dgvOffraidPositions.Size = new System.Drawing.Size(1040, 668);
+            this.dgvOffraidPositions.TabIndex = 0;
+            // 
+            // btnAddOffraidPosition
+            // 
+            this.btnAddOffraidPosition.Location = new System.Drawing.Point(20, 694);
+            this.btnAddOffraidPosition.Name = "btnAddOffraidPosition";
+            this.btnAddOffraidPosition.Size = new System.Drawing.Size(90, 26);
+            this.btnAddOffraidPosition.TabIndex = 1;
+            this.btnAddOffraidPosition.Text = "Add";
+            this.btnAddOffraidPosition.Click += new System.EventHandler(this.btnAddOffraidPosition_Click);
+            // 
+            // btnDeleteOffraidPosition
+            // 
+            this.btnDeleteOffraidPosition.Location = new System.Drawing.Point(130, 694);
+            this.btnDeleteOffraidPosition.Name = "btnDeleteOffraidPosition";
+            this.btnDeleteOffraidPosition.Size = new System.Drawing.Size(80, 26);
+            this.btnDeleteOffraidPosition.TabIndex = 2;
+            this.btnDeleteOffraidPosition.Text = "Delete";
+            this.btnDeleteOffraidPosition.Click += new System.EventHandler(this.btnDeleteOffraidPosition_Click);
+            // 
+            // tabMapVisualization
+            // 
+            this.tabMapVisualization.Controls.Add(this.btnOpenMapVisualization);
+            this.tabMapVisualization.Controls.Add(this.lblMapInfo);
+            this.tabMapVisualization.Location = new System.Drawing.Point(4, 22);
+            this.tabMapVisualization.Name = "tabMapVisualization";
+            this.tabMapVisualization.Padding = new System.Windows.Forms.Padding(10);
+            this.tabMapVisualization.Size = new System.Drawing.Size(1096, 733);
+            this.tabMapVisualization.TabIndex = 5;
+            this.tabMapVisualization.Text = "Map Visualization";
+            this.tabMapVisualization.UseVisualStyleBackColor = true;
+            // 
+            // btnOpenMapVisualization
+            // 
+            this.btnOpenMapVisualization.Location = new System.Drawing.Point(20, 20);
+            this.btnOpenMapVisualization.Name = "btnOpenMapVisualization";
+            this.btnOpenMapVisualization.Size = new System.Drawing.Size(120, 26);
+            this.btnOpenMapVisualization.TabIndex = 0;
+            this.btnOpenMapVisualization.Text = "Open Map";
+            this.btnOpenMapVisualization.UseVisualStyleBackColor = true;
+            this.btnOpenMapVisualization.Click += new System.EventHandler(this.btnOpenMapVisualization_Click);
+            // 
+            // lblMapInfo
+            // 
+            this.lblMapInfo.Location = new System.Drawing.Point(20, 60);
+            this.lblMapInfo.Name = "lblMapInfo";
+            this.lblMapInfo.Size = new System.Drawing.Size(1040, 20);
+            this.lblMapInfo.TabIndex = 1;
+            this.lblMapInfo.Text = "Map Info: N/A";
+            // 
+            // Form1
+            // 
+            this.ClientSize = new System.Drawing.Size(1124, 789);
+            this.Controls.Add(this.tabControlMain);
+            this.Name = "Form1";
+            this.Text = "Path To Tarkov Config Editor";
+            this.Load += new System.EventHandler(this.Form1_Load);
+            this.tabControlMain.ResumeLayout(false);
+            this.tabBase.ResumeLayout(false);
+            this.tabBase.PerformLayout();
+            this.grpRestrictions.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvRestrictions)).EndInit();
+            this.grpOffraidRegen.ResumeLayout(false);
+            this.tabTraders.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvTraders)).EndInit();
+            this.tabStashes.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvStashes)).EndInit();
+            this.tabExfils.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvExfils)).EndInit();
+            this.tabInfils.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvInfils)).EndInit();
+            this.tabOffraidPositions.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvOffraidPositions)).EndInit();
+            this.tabMapVisualization.ResumeLayout(false);
+            this.ResumeLayout(false);
+
+        }
+
+        #endregion
+    }
+}
+

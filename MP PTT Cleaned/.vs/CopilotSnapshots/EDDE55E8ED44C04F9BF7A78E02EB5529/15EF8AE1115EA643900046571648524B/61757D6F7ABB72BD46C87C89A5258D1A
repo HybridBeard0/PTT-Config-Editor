@@ -1,0 +1,263 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Forms;
+
+namespace MP_PTT
+{
+    public partial class AddExfilForm : Form
+    {
+        public string SelectedMapId { get; private set; }
+        public string SelectedMapDisplayName { get; private set; }
+        public string SelectedExfilIdentifier { get; private set; }
+        public string SelectedExfilDescription { get; private set; }
+        public List<string> SelectedInfiltrations { get; private set; }
+
+        private ComboBox cmbMap;
+        private ComboBox cmbExfilPoint;
+        private CheckedListBox clbInfiltrations;
+        private Button btnOK;
+        private Button btnCancel;
+        private Label lblMap;
+        private Label lblExfilPoint;
+        private Label lblInfiltrations;
+        private Label lblHelp;
+
+        public AddExfilForm()
+        {
+            InitializeComponent();
+            LoadMaps();
+        }
+
+        private void InitializeComponent()
+        {
+            this.Text = "Add Exfiltration Point";
+            this.Width = 500;
+            this.Height = 500;
+            this.FormBorderStyle = FormBorderStyle.FixedDialog;
+            this.StartPosition = FormStartPosition.CenterParent;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
+
+            // Help label
+            lblHelp = new Label
+            {
+                Text = "Select a map, then choose an exfiltration point, and finally select the infiltration(s) it leads to.",
+                Location = new System.Drawing.Point(10, 10),
+                Size = new System.Drawing.Size(460, 40),
+                AutoSize = false
+            };
+            this.Controls.Add(lblHelp);
+
+            // Map selection
+            lblMap = new Label
+            {
+                Text = "1. Select Map:",
+                Location = new System.Drawing.Point(10, 60),
+                Size = new System.Drawing.Size(460, 20)
+            };
+            this.Controls.Add(lblMap);
+
+            cmbMap = new ComboBox
+            {
+                Location = new System.Drawing.Point(10, 85),
+                Size = new System.Drawing.Size(460, 25),
+                DropDownStyle = ComboBoxStyle.DropDownList
+            };
+            cmbMap.SelectedIndexChanged += CmbMap_SelectedIndexChanged;
+            this.Controls.Add(cmbMap);
+
+            // Exfil point selection
+            lblExfilPoint = new Label
+            {
+                Text = "2. Select Exfiltration Point:",
+                Location = new System.Drawing.Point(10, 120),
+                Size = new System.Drawing.Size(460, 20)
+            };
+            this.Controls.Add(lblExfilPoint);
+
+            cmbExfilPoint = new ComboBox
+            {
+                Location = new System.Drawing.Point(10, 145),
+                Size = new System.Drawing.Size(460, 25),
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Enabled = false
+            };
+            cmbExfilPoint.SelectedIndexChanged += CmbExfilPoint_SelectedIndexChanged;
+            this.Controls.Add(cmbExfilPoint);
+
+            // Infiltrations selection
+            lblInfiltrations = new Label
+            {
+                Text = "3. Select Infiltration(s) this exfil leads to:",
+                Location = new System.Drawing.Point(10, 180),
+                Size = new System.Drawing.Size(460, 20)
+            };
+            this.Controls.Add(lblInfiltrations);
+
+            clbInfiltrations = new CheckedListBox
+            {
+                Location = new System.Drawing.Point(10, 205),
+                Size = new System.Drawing.Size(460, 180),
+                CheckOnClick = true,
+                Enabled = false
+            };
+            this.Controls.Add(clbInfiltrations);
+
+            // Buttons
+            btnOK = new Button
+            {
+                Text = "Add",
+                Location = new System.Drawing.Point(300, 400),
+                Size = new System.Drawing.Size(80, 30),
+                DialogResult = DialogResult.OK,
+                Enabled = false
+            };
+            this.Controls.Add(btnOK);
+
+            btnCancel = new Button
+            {
+                Text = "Cancel",
+                Location = new System.Drawing.Point(390, 400),
+                Size = new System.Drawing.Size(80, 30),
+                DialogResult = DialogResult.Cancel
+            };
+            this.Controls.Add(btnCancel);
+
+            this.AcceptButton = btnOK;
+            this.CancelButton = btnCancel;
+        }
+
+        private void LoadMaps()
+        {
+            cmbMap.Items.Clear();
+            
+            var allMaps = MapDataProvider.GetAllMaps();
+            var sortedMaps = allMaps.Values.OrderBy(m => m.MapDisplayName).ToList();
+            
+            foreach (var map in sortedMaps)
+            {
+                cmbMap.Items.Add(new MapItem
+                {
+                    MapId = map.MapId,
+                    MapDisplayName = map.MapDisplayName
+                });
+            }
+            
+            if (cmbMap.Items.Count > 0)
+            {
+                cmbMap.DisplayMember = "MapDisplayName";
+            }
+        }
+
+        private void CmbMap_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var selectedMap = cmbMap.SelectedItem as MapItem;
+            if (selectedMap == null)
+                return;
+
+            // Load exfil points for selected map
+            cmbExfilPoint.Items.Clear();
+            clbInfiltrations.Items.Clear();
+            
+            var mapData = MapDataProvider.GetMap(selectedMap.MapId);
+            if (mapData != null)
+            {
+                var sortedExfils = mapData.Exfiltrations.OrderBy(e => e.Description).ToList();
+                foreach (var exfil in sortedExfils)
+                {
+                    cmbExfilPoint.Items.Add(new ExfilItem
+                    {
+                        Identifier = exfil.Identifier,
+                        Description = exfil.Description
+                    });
+                }
+                
+                if (cmbExfilPoint.Items.Count > 0)
+                {
+                    cmbExfilPoint.DisplayMember = "Description";
+                    cmbExfilPoint.Enabled = true;
+                }
+            }
+            
+            btnOK.Enabled = false;
+        }
+
+        private void CmbExfilPoint_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var selectedExfil = cmbExfilPoint.SelectedItem as ExfilItem;
+            if (selectedExfil == null)
+                return;
+
+            // Load all available infiltrations
+            clbInfiltrations.Items.Clear();
+            
+            var allInfiltrations = MapDataProvider.GetAllInfiltrations();
+            var sortedInfils = allInfiltrations.OrderBy(i => i).ToList();
+            
+            foreach (var infil in sortedInfils)
+            {
+                clbInfiltrations.Items.Add(infil);
+            }
+            
+            clbInfiltrations.Enabled = true;
+            clbInfiltrations.ItemCheck += ClbInfiltrations_ItemCheck;
+            
+            UpdateOKButton();
+        }
+
+        private void ClbInfiltrations_ItemCheck(object sender, ItemCheckEventArgs e)
+        {
+            // Use BeginInvoke to ensure the check state is updated before we check
+            this.BeginInvoke(new Action(() => UpdateOKButton()));
+        }
+
+        private void UpdateOKButton()
+        {
+            // Enable OK button only if at least one infiltration is selected
+            btnOK.Enabled = clbInfiltrations.CheckedItems.Count > 0;
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            base.OnFormClosing(e);
+            
+            if (this.DialogResult == DialogResult.OK)
+            {
+                var selectedMap = cmbMap.SelectedItem as MapItem;
+                var selectedExfil = cmbExfilPoint.SelectedItem as ExfilItem;
+                
+                if (selectedMap == null || selectedExfil == null || clbInfiltrations.CheckedItems.Count == 0)
+                {
+                    MessageBox.Show("Please complete all selections.", "Incomplete Selection", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    e.Cancel = true;
+                    return;
+                }
+                
+                SelectedMapId = selectedMap.MapId;
+                SelectedMapDisplayName = selectedMap.MapDisplayName;
+                SelectedExfilIdentifier = selectedExfil.Identifier;
+                SelectedExfilDescription = selectedExfil.Description;
+                
+                SelectedInfiltrations = new List<string>();
+                foreach (var item in clbInfiltrations.CheckedItems)
+                {
+                    SelectedInfiltrations.Add(item.ToString());
+                }
+            }
+        }
+
+        private class MapItem
+        {
+            public string MapId { get; set; }
+            public string MapDisplayName { get; set; }
+        }
+
+        private class ExfilItem
+        {
+            public string Identifier { get; set; }
+            public string Description { get; set; }
+        }
+    }
+}

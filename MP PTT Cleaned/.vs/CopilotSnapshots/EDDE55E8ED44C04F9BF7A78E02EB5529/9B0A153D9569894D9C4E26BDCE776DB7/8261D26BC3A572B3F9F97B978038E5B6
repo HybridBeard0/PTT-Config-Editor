@@ -1,0 +1,297 @@
+﻿# Exfil Tab Improvements - Summary
+
+## Overview
+The Exfil tab has been rebuilt to support the proper workflow: **Map → Exfil Point → Infiltration(s)**, making it more intuitive and aligned with the actual config file structure. Infiltrations are now organized by map in a TreeView for better readability.
+
+## Example from Config
+```json5
+exfiltrations: {
+  tarkovstreets: {
+    scav_e1: ['BasementDescent'],
+    E1: ['StylobateElevator'],
+    E4: ['CrashSite'],
+  }
+}
+```
+
+## What Changed
+
+### 1. New AddExfilForm Dialog with TreeView
+A new form (`AddExfilForm.cs`) has been created that guides users through adding exfiltrations step-by-step:
+
+**Step 1: Select Map**
+- Shows all available maps in a dropdown
+- Sorted alphabetically by display name (e.g., "Streets of Tarkov")
+
+**Step 2: Select Exfiltration Point**
+- Populates with all exfil points for the selected map
+- Sorted by description
+- Automatically enabled when a map is selected
+
+**Step 3: Select Infiltration(s) - NOW WITH TREEVIEW**
+- Shows all available infiltrations **organized by map**
+- TreeView format with expandable map nodes
+- Each map node shows its infiltrations as child nodes
+- Multiple selections allowed using checkboxes
+- "Expand All" and "Collapse All" buttons for easy navigation
+- Only enables "Add" button when at least one infiltration is selected
+
+**Benefits of TreeView:**
+- Clear visual grouping by map
+- Easy to see which maps contain which infiltrations
+- Can select from multiple maps at once
+- Prevents selecting map nodes (only infiltrations are selectable)
+
+### 2. Enhanced Display in DataGridView with View Button
+The exfil grid now shows entries in a more readable format with a "View Tree" button:
+
+**Grid Layout:**
+```
+Exfiltration Point                                    | Leads To           | Map              | View
+"Basement Descent" ➜ [scav_e1] on Streets of Tarkov  | BasementDescent   | Streets of Tarkov | [View Tree]
+```
+
+**View Button Features:**
+- Click "View Tree" to open a detailed dialog
+- Shows infiltrations organized by map
+- Visual icons (🗺️ for maps, 📍 for infiltrations)
+- Shows count per map and total summary
+- Unknown infiltrations grouped separately with ❓ icon
+
+### 3. New ViewInfiltrationsDialog
+A new dialog (`ViewInfiltrationsDialog.cs`) for viewing infiltration details:
+
+**Features:**
+- TreeView display with map grouping
+- Shows infiltration count per map: "🗺️ Customs (3)"
+- Icons for visual clarity
+- Bold map names, normal infiltration names
+- Expands all nodes by default
+- Summary at bottom showing total counts
+- Handles unknown infiltrations gracefully
+
+**Example Display:**
+```
+🗺️ Customs (2)
+  📍 FactoryZB-1011
+  📍 FactoryZB-013
+🗺️ Streets of Tarkov (1)
+  📍 BasementDescent
+❓ Unknown (1)
+  📍 SomeUnknownLocation
+
+Total: 4 destination(s) across 3 map(s)
+```
+
+### 4. Updated btnAddExfil_Click Method
+The button click handler in Form1.cs now:
+- Opens the new AddExfilForm dialog with TreeView
+- Receives structured data (map ID, exfil identifier, infiltrations)
+- Formats the data in the readable format
+- Checks for duplicates (same map + same exfil identifier)
+- Offers to update existing exfils
+- Automatically sorts the grid by map name
+
+### 5. Updated PTTConfigWriter.UpdateExfilsConfig
+The save method has been enhanced to:
+- Parse the new readable format from the grid
+- Extract the identifier from between brackets using regex
+- Convert map display names back to map IDs
+- Group exfils by map
+- Write proper array syntax for destinations
+
+**New Helper Method:**
+- `GetMapIdFromDisplayName()`: Converts display name (e.g., "Streets of Tarkov") back to map ID (e.g., "tarkovstreets")
+
+## Benefits
+
+### For Users:
+1. **Intuitive Workflow**: Natural flow from map → exfil → destination
+2. **Clear Organization**: Infiltrations grouped by map in TreeView
+3. **Visual Clarity**: Icons and formatting make data easy to scan
+4. **Quick Overview**: "View Tree" button for detailed view without editing
+5. **Easy Navigation**: Expand/collapse controls for large lists
+6. **Error Prevention**: Can't add incomplete entries
+7. **Easy Updates**: Duplicate detection with update option
+8. **Multiple Destinations**: Can select from multiple maps in one operation
+
+### For Developers:
+1. **Clean Code**: Separation of concerns (form logic vs data logic)
+2. **Type Safety**: Structured data transfer using properties
+3. **Validation**: Multiple layers of validation
+4. **Maintainability**: Easy to extend with new features
+5. **Reusable Components**: ViewInfiltrationsDialog can be used elsewhere
+
+## Usage
+
+### Adding a New Exfiltration:
+1. Click "Add Exfil" button
+2. Select map from dropdown (e.g., "Streets of Tarkov")
+3. Select exfil point from dropdown (e.g., "Basement Descent")
+4. Expand map nodes in the tree to find infiltrations
+5. Check one or more infiltrations (can be from different maps)
+6. Use "Expand All" / "Collapse All" as needed
+7. Click "Add"
+
+### Viewing Exfiltration Details:
+1. Find the exfil in the grid
+2. Click the "View Tree" button in that row
+3. View organized tree of infiltrations by map
+4. See counts and summary
+5. Click "Close" when done
+
+### Updating an Existing Exfiltration:
+1. Click "Add Exfil" button
+2. Select the same map and exfil point
+3. Select different/additional infiltrations from the tree
+4. Click "Add"
+5. Confirm "Yes" to update
+
+### Deleting an Exfiltration:
+1. Select row(s) in the grid
+2. Click "Delete Exfil" button
+3. Confirm deletion
+
+## Technical Details
+
+### New Files:
+- **AddExfilForm.cs**: Main form with TreeView for adding exfils
+- **ViewInfiltrationsDialog.cs**: Dialog for viewing infiltrations in tree format
+
+### Components in AddExfilForm:
+- ComboBox for maps
+- ComboBox for exfil points  
+- TreeView for infiltrations (organized by map)
+- Expand All / Collapse All buttons
+- Labels with instructions
+- OK/Cancel buttons
+
+### Components in ViewInfiltrationsDialog:
+- TreeView showing infiltrations by map
+- Summary label
+- Close button
+- Icon support (🗺️, 📍, ❓)
+
+### Modified Files:
+- **Form1.cs**: 
+  - Updated `InitializeDataGrids()` to add View button column
+  - Added `DgvExfils_CellContentClick()` event handler
+  - Updated `btnAddExfil_Click()` method
+- **PTTConfigWriter.cs**: 
+  - Updated `UpdateExfilsConfig()` method
+  - Added `GetMapIdFromDisplayName()` helper method
+
+### Data Flow:
+```
+MapDataProvider → AddExfilForm (TreeView by map)
+                ↓
+            User Selection (with map context)
+                ↓
+            Form1.dgvExfils (readable format + View button)
+                ↓
+            [View Tree] → ViewInfiltrationsDialog (detailed tree view)
+                ↓
+            PTTConfigWriter.UpdateExfilsConfig (parse & convert)
+                ↓
+            config.json5 (correct format)
+```
+
+## Example Scenarios
+
+### Scenario 1: Adding Streets of Tarkov Exfil
+```
+Map: Streets of Tarkov
+Exfil: scav_e1 (Basement Descent)
+TreeView shows:
+  🗺️ Streets of Tarkov
+    📍 Basement Descent ✓ (checked)
+    📍 Catacombs
+  🗺️ The Lab
+    📍 Cargo Elevator
+    📍 Parking Gate
+
+Result in grid:
+"Basement Descent" ➜ [scav_e1] on Streets of Tarkov | BasementDescent | Streets of Tarkov | [View Tree]
+
+Clicking "View Tree" shows:
+🗺️ Streets of Tarkov (1)
+  📍 BasementDescent
+Total: 1 destination(s) across 1 map(s)
+```
+
+### Scenario 2: Exfil with Multiple Destinations Across Maps
+```
+Map: Customs
+Exfil: ZB-1011
+TreeView shows:
+  🗺️ Customs
+    📍 ZB-1011 ✓
+  🗺️ Factory (Day)
+    📍 Gate 0 ✓
+
+Result in grid:
+"ZB-1011" ➜ [ZB-1011] on Customs | ZB-1011, Gate 0 | Customs | [View Tree]
+
+Clicking "View Tree" shows:
+🗺️ Customs (1)
+  📍 ZB-1011
+🗺️ Factory (Day) (1)
+  📍 Gate 0
+Total: 2 destination(s) across 2 map(s)
+```
+
+### Scenario 3: Complex Multi-Map Destination
+```
+Clicking "View Tree" on ArmoredTrain exfil shows:
+🗺️ Customs (1)
+  📍 RR to Military Base
+🗺️ Woods (1)
+  📍 Factory Gate
+🗺️ Lighthouse (1)
+  📍 Armored Train LH
+🗺️ Shoreline (1)
+  📍 Railway Bridge
+🗺️ Interchange (1)
+  📍 Railway
+🗺️ Reserve (1)
+  📍 Train Station
+🗺️ Streets of Tarkov (1)
+  📍 Crash Site
+Total: 7 destination(s) across 7 map(s)
+```
+
+## UI Improvements Summary
+
+| Feature | Before | After |
+|---------|--------|-------|
+| Infiltration Selection | Flat list | TreeView organized by map |
+| View Destinations | Text in cell | "View Tree" button → Dialog |
+| Organization | None | Map-based grouping |
+| Visual Aids | None | Icons (🗺️, 📍, ❓) |
+| Navigation | Scroll | Expand/Collapse controls |
+| Counts | None | Per-map and total counts |
+| Unknown Items | Hidden | Grouped with ❓ icon |
+
+## Future Enhancements (Potential)
+
+1. **Search/Filter**: Add search box to filter infiltrations in tree
+2. **Auto-populate from config**: Import existing exfils when loading
+3. **Validation against config**: Warn if infiltration doesn't exist
+4. **Bidirectional checking**: Show which infils lead to this exfil
+5. **Bulk operations**: Add multiple exfils at once
+6. **Templates**: Save/load common exfil patterns
+7. **Map highlighting**: Highlight related maps when selecting
+8. **Export**: Export tree view to text or image
+
+## Testing Recommendations
+
+1. **Add new exfil**: Verify tree shows maps correctly
+2. **View details**: Click "View Tree" button, check organization
+3. **Update existing exfil**: Check that destinations are replaced
+4. **Multiple destinations**: Confirm array format in config
+5. **Map ID conversion**: Verify display names convert to map IDs
+6. **Delete exfil**: Ensure it's removed from config
+7. **Load config**: Check that existing exfils display correctly
+8. **Unknown infiltrations**: Add fake infiltration, check ❓ group
+9. **Expand/Collapse**: Test buttons work correctly
+10. **Cross-map selection**: Select from multiple maps, verify saved correctly

@@ -1,0 +1,206 @@
+﻿# Exfil Tab Improvements - Summary
+
+## Overview
+The Exfil tab has been rebuilt to support the proper workflow: **Map → Exfil Point → Infiltration(s)**, making it more intuitive and aligned with the actual config file structure.
+
+## Example from Config
+```json5
+exfiltrations: {
+  tarkovstreets: {
+    scav_e1: ['BasementDescent'],
+    E1: ['StylobateElevator'],
+    E4: ['CrashSite'],
+  }
+}
+```
+
+## What Changed
+
+### 1. New AddExfilForm Dialog
+A new form (`AddExfilForm.cs`) has been created that guides users through adding exfiltrations step-by-step:
+
+**Step 1: Select Map**
+- Shows all available maps in a dropdown
+- Sorted alphabetically by display name (e.g., "Streets of Tarkov")
+
+**Step 2: Select Exfiltration Point**
+- Populates with all exfil points for the selected map
+- Sorted by description
+- Automatically enabled when a map is selected
+
+**Step 3: Select Infiltration(s)**
+- Shows all available infiltration points
+- Multiple selections allowed using a CheckedListBox
+- Only enables "Add" button when at least one infiltration is selected
+
+**User-Friendly Design:**
+- Help text at the top explains the workflow
+- Each step is numbered and clearly labeled
+- Inputs are disabled until previous steps are complete
+- Validation on form close ensures all selections are made
+
+### 2. Enhanced Display in DataGridView
+The exfil grid now shows entries in a more readable format:
+
+**Before:**
+```
+ExfilInfo          | Destination       | Map
+scav_e1            | BasementDescent   | tarkovstreets
+```
+
+**After:**
+```
+Exfiltration Point                                    | Leads To (Destinations)  | Map
+"Basement Descent" ➜ [scav_e1] on Streets of Tarkov  | BasementDescent          | Streets of Tarkov
+```
+
+This format shows:
+- The human-readable description
+- The actual game identifier in brackets
+- The map name
+- All destinations it leads to
+
+### 3. Updated btnAddExfil_Click Method
+The button click handler in Form1.cs now:
+- Opens the new AddExfilForm dialog
+- Receives structured data (map ID, exfil identifier, infiltrations)
+- Formats the data in the readable format
+- Checks for duplicates (same map + same exfil identifier)
+- Offers to update existing exfils
+- Automatically sorts the grid by map name
+
+### 4. Updated PTTConfigWriter.UpdateExfilsConfig
+The save method has been enhanced to:
+- Parse the new readable format from the grid
+- Extract the identifier from between brackets using regex
+- Convert map display names back to map IDs
+- Group exfils by map
+- Write proper array syntax for destinations
+
+**New Helper Method:**
+- `GetMapIdFromDisplayName()`: Converts display name (e.g., "Streets of Tarkov") back to map ID (e.g., "tarkovstreets")
+
+## Benefits
+
+### For Users:
+1. **Intuitive Workflow**: Natural flow from map → exfil → destination
+2. **Clear Labeling**: See both human-readable names and game identifiers
+3. **Error Prevention**: Can't add incomplete entries
+4. **Easy Updates**: Duplicate detection with update option
+5. **Multiple Destinations**: Can select multiple infiltrations in one operation
+
+### For Developers:
+1. **Clean Code**: Separation of concerns (form logic vs data logic)
+2. **Type Safety**: Structured data transfer using properties
+3. **Validation**: Multiple layers of validation
+4. **Maintainability**: Easy to extend with new features
+
+## Usage
+
+### Adding a New Exfiltration:
+1. Click "Add Exfil" button
+2. Select map from dropdown (e.g., "Streets of Tarkov")
+3. Select exfil point from dropdown (e.g., "Basement Descent")
+4. Check one or more infiltrations it leads to (e.g., "BasementDescent")
+5. Click "Add"
+
+### Updating an Existing Exfiltration:
+1. Click "Add Exfil" button
+2. Select the same map and exfil point
+3. Select different/additional infiltrations
+4. Click "Add"
+5. Confirm "Yes" to update
+
+### Deleting an Exfiltration:
+1. Select row(s) in the grid
+2. Click "Delete Exfil" button
+3. Confirm deletion
+
+## Technical Details
+
+### New File: AddExfilForm.cs
+- **FormBorderStyle**: FixedDialog
+- **Size**: 500x500
+- **Components**:
+  - ComboBox for maps
+  - ComboBox for exfil points  
+  - CheckedListBox for infiltrations
+  - Labels with instructions
+  - OK/Cancel buttons
+
+### Modified Files:
+- **Form1.cs**: Updated `btnAddExfil_Click()` method
+- **PTTConfigWriter.cs**: 
+  - Updated `UpdateExfilsConfig()` method
+  - Added `GetMapIdFromDisplayName()` helper method
+
+### Data Flow:
+```
+MapDataProvider → AddExfilForm 
+                ↓
+            User Selection
+                ↓
+            Form1.dgvExfils (readable format)
+                ↓
+            PTTConfigWriter.UpdateExfilsConfig (parse & convert)
+                ↓
+            config.json5 (correct format)
+```
+
+## Example Scenarios
+
+### Scenario 1: Adding Streets of Tarkov Exfil
+```
+Map: Streets of Tarkov
+Exfil: scav_e1 (Basement Descent)
+Leads to: BasementDescent
+
+Result in grid:
+"Basement Descent" ➜ [scav_e1] on Streets of Tarkov | BasementDescent | Streets of Tarkov
+
+Result in config:
+tarkovstreets: {
+  scav_e1: ['BasementDescent'],
+}
+```
+
+### Scenario 2: Exfil with Multiple Destinations
+```
+Map: Customs
+Exfil: ZB-1011
+Leads to: FactoryZB-1011, FactoryZB-013
+
+Result in grid:
+"ZB-1011" ➜ [ZB-1011] on Customs | FactoryZB-1011, FactoryZB-013 | Customs
+
+Result in config:
+bigmap: {
+  'ZB-1011': ['FactoryZB-1011', 'FactoryZB-013'],
+}
+```
+
+## Future Enhancements (Potential)
+
+1. **Auto-populate from config**: Import existing exfils when loading
+2. **Validation against config**: Warn if infiltration doesn't exist
+3. **Bidirectional checking**: Show which infils lead to this exfil
+4. **Filtering**: Filter exfils by map in the grid
+5. **Search**: Search for specific exfil points
+6. **Bulk operations**: Add multiple exfils at once
+7. **Templates**: Save/load common exfil patterns
+
+## Testing Recommendations
+
+1. **Add new exfil**: Verify it appears in grid and saves correctly
+2. **Update existing exfil**: Check that destinations are replaced
+3. **Multiple destinations**: Confirm array format in config
+4. **Map ID conversion**: Verify display names convert to map IDs
+5. **Delete exfil**: Ensure it's removed from config
+6. **Load config**: Check that existing exfils display correctly
+
+## Compatibility
+
+- **.NET Framework**: 4.7.2
+- **Config Format**: JSON5
+- **Map Data**: Compatible with existing MapDataProvider
+- **Backwards Compatible**: Reads existing config files correctly

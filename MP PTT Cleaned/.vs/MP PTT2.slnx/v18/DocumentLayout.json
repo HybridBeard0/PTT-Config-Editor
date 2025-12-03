@@ -1,0 +1,427 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|solutionrelative:form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|f:\\temp\\code projects\\git\\ptt-config-editor\\mp ptt cleaned\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|solutionrelative:form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\form1.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|solutionrelative:form1.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\Templates\\Hybrid\\config.json5||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Templates\\Hybrid\\config.json5||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\mapvisualizationform_enhanced.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|solutionrelative:mapvisualizationform_enhanced.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\DynamicMaps\\Maps\\Customs_TarkovDev\\Customs_TarkovDev.jsonc||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:DynamicMaps\\Maps\\Customs_TarkovDev\\Customs_TarkovDev.jsonc||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\pttconfigmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|solutionrelative:pttconfigmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\dynamicmapconfigparser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|solutionrelative:dynamicmapconfigparser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\addexfilform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|solutionrelative:addexfilform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\pttconfigwriter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|solutionrelative:pttconfigwriter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\exfil_tab_improvements.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|solutionrelative:exfil_tab_improvements.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\viewinfiltrationsdialog.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|solutionrelative:viewinfiltrationsdialog.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\exfil_tab_visual_guide.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|solutionrelative:exfil_tab_visual_guide.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\addinfilform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|solutionrelative:addinfilform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\viewspawnpointsdialog.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|solutionrelative:viewspawnpointsdialog.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\infil_tab_improvements.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|solutionrelative:infil_tab_improvements.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\infil_tab_visual_guide.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|solutionrelative:infil_tab_visual_guide.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\complete_tab_improvements_summary.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|solutionrelative:complete_tab_improvements_summary.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\map_visualization_non_modal.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|solutionrelative:map_visualization_non_modal.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\addoffraidpositionform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|solutionrelative:addoffraidpositionform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\offraid_positions_tab_guide.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|solutionrelative:offraid_positions_tab_guide.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\offraid_positions_implementation_status.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|solutionrelative:offraid_positions_implementation_status.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\offraid_positions_complete.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|solutionrelative:offraid_positions_complete.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\offraid_positions_loading_complete.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|solutionrelative:offraid_positions_loading_complete.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|f:\\temp\\code projects\\git\\ptt-config-editor\\mp ptt cleaned\\delete_button_fix.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{D6BFFF11-191C-4EE4-82AD-FB7546C34072}|MP PTT2.csproj|solutionrelative:delete_button_fix.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 25,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{40ea2e6b-2121-4bb8-a43e-c83c04b51041}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
+              "Title": "DELETE_BUTTON_FIX.md",
+              "DocumentMoniker": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\DELETE_BUTTON_FIX.md",
+              "RelativeDocumentMoniker": "DELETE_BUTTON_FIX.md",
+              "ToolTip": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\DELETE_BUTTON_FIX.md",
+              "RelativeToolTip": "DELETE_BUTTON_FIX.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAALIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2025-12-02T13:07:29.736Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "OFFRAID_POSITIONS_LOADING_COMPLETE.md",
+              "DocumentMoniker": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\OFFRAID_POSITIONS_LOADING_COMPLETE.md",
+              "RelativeDocumentMoniker": "OFFRAID_POSITIONS_LOADING_COMPLETE.md",
+              "ToolTip": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\OFFRAID_POSITIONS_LOADING_COMPLETE.md",
+              "RelativeToolTip": "OFFRAID_POSITIONS_LOADING_COMPLETE.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAMMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2025-12-02T12:13:44.154Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "OFFRAID_POSITIONS_COMPLETE.md",
+              "DocumentMoniker": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\OFFRAID_POSITIONS_COMPLETE.md",
+              "RelativeDocumentMoniker": "OFFRAID_POSITIONS_COMPLETE.md",
+              "ToolTip": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\OFFRAID_POSITIONS_COMPLETE.md",
+              "RelativeToolTip": "OFFRAID_POSITIONS_COMPLETE.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAL4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2025-12-02T12:06:40.903Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "OFFRAID_POSITIONS_IMPLEMENTATION_STATUS.md",
+              "DocumentMoniker": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\OFFRAID_POSITIONS_IMPLEMENTATION_STATUS.md",
+              "RelativeDocumentMoniker": "OFFRAID_POSITIONS_IMPLEMENTATION_STATUS.md",
+              "ToolTip": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\OFFRAID_POSITIONS_IMPLEMENTATION_STATUS.md",
+              "RelativeToolTip": "OFFRAID_POSITIONS_IMPLEMENTATION_STATUS.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACgBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2025-12-02T12:00:35.669Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "OFFRAID_POSITIONS_TAB_GUIDE.md",
+              "DocumentMoniker": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\OFFRAID_POSITIONS_TAB_GUIDE.md",
+              "RelativeDocumentMoniker": "OFFRAID_POSITIONS_TAB_GUIDE.md",
+              "ToolTip": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\OFFRAID_POSITIONS_TAB_GUIDE.md",
+              "RelativeToolTip": "OFFRAID_POSITIONS_TAB_GUIDE.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADUBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2025-12-02T11:58:30.512Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "AddOffraidPositionForm.cs",
+              "DocumentMoniker": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\AddOffraidPositionForm.cs",
+              "RelativeDocumentMoniker": "AddOffraidPositionForm.cs",
+              "ToolTip": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\AddOffraidPositionForm.cs",
+              "RelativeToolTip": "AddOffraidPositionForm.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAK0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-02T11:57:29.278Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Form1.Designer.cs",
+              "DocumentMoniker": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\Form1.Designer.cs",
+              "RelativeDocumentMoniker": "Form1.Designer.cs",
+              "ToolTip": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\Form1.Designer.cs",
+              "RelativeToolTip": "Form1.Designer.cs",
+              "ViewState": "AgIAAC0CAAAAAAAAAAAMwEACAABNAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-02T11:55:31.465Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "MAP_VISUALIZATION_NON_MODAL.md",
+              "DocumentMoniker": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\MAP_VISUALIZATION_NON_MODAL.md",
+              "RelativeDocumentMoniker": "MAP_VISUALIZATION_NON_MODAL.md",
+              "ToolTip": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\MAP_VISUALIZATION_NON_MODAL.md",
+              "RelativeToolTip": "MAP_VISUALIZATION_NON_MODAL.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAOMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2025-12-02T11:43:29.016Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "COMPLETE_TAB_IMPROVEMENTS_SUMMARY.md",
+              "DocumentMoniker": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\COMPLETE_TAB_IMPROVEMENTS_SUMMARY.md",
+              "RelativeDocumentMoniker": "COMPLETE_TAB_IMPROVEMENTS_SUMMARY.md",
+              "ToolTip": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\COMPLETE_TAB_IMPROVEMENTS_SUMMARY.md",
+              "RelativeToolTip": "COMPLETE_TAB_IMPROVEMENTS_SUMMARY.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAHMBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2025-12-02T11:31:32.222Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "INFIL_TAB_VISUAL_GUIDE.md",
+              "DocumentMoniker": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\INFIL_TAB_VISUAL_GUIDE.md",
+              "RelativeDocumentMoniker": "INFIL_TAB_VISUAL_GUIDE.md",
+              "ToolTip": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\INFIL_TAB_VISUAL_GUIDE.md",
+              "RelativeToolTip": "INFIL_TAB_VISUAL_GUIDE.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACoBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2025-12-02T11:30:22.123Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "INFIL_TAB_IMPROVEMENTS.md",
+              "DocumentMoniker": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\INFIL_TAB_IMPROVEMENTS.md",
+              "RelativeDocumentMoniker": "INFIL_TAB_IMPROVEMENTS.md",
+              "ToolTip": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\INFIL_TAB_IMPROVEMENTS.md",
+              "RelativeToolTip": "INFIL_TAB_IMPROVEMENTS.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAFcBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2025-12-02T11:29:22.566Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "ViewSpawnPointsDialog.cs",
+              "DocumentMoniker": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\ViewSpawnPointsDialog.cs",
+              "RelativeDocumentMoniker": "ViewSpawnPointsDialog.cs",
+              "ToolTip": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\ViewSpawnPointsDialog.cs",
+              "RelativeToolTip": "ViewSpawnPointsDialog.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAKMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-02T11:24:20.11Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "AddInfilForm.cs",
+              "DocumentMoniker": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\AddInfilForm.cs",
+              "RelativeDocumentMoniker": "AddInfilForm.cs",
+              "ToolTip": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\AddInfilForm.cs",
+              "RelativeToolTip": "AddInfilForm.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAALQBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-02T11:23:51.888Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "EXFIL_TAB_VISUAL_GUIDE.md",
+              "DocumentMoniker": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\EXFIL_TAB_VISUAL_GUIDE.md",
+              "RelativeDocumentMoniker": "EXFIL_TAB_VISUAL_GUIDE.md",
+              "ToolTip": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\EXFIL_TAB_VISUAL_GUIDE.md",
+              "RelativeToolTip": "EXFIL_TAB_VISUAL_GUIDE.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAO0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2025-12-02T11:13:14.419Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "ViewInfiltrationsDialog.cs",
+              "DocumentMoniker": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\ViewInfiltrationsDialog.cs",
+              "RelativeDocumentMoniker": "ViewInfiltrationsDialog.cs",
+              "ToolTip": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\ViewInfiltrationsDialog.cs",
+              "RelativeToolTip": "ViewInfiltrationsDialog.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAJAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-02T11:09:59.2Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "EXFIL_TAB_IMPROVEMENTS.md",
+              "DocumentMoniker": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\EXFIL_TAB_IMPROVEMENTS.md",
+              "RelativeDocumentMoniker": "EXFIL_TAB_IMPROVEMENTS.md",
+              "ToolTip": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\EXFIL_TAB_IMPROVEMENTS.md",
+              "RelativeToolTip": "EXFIL_TAB_IMPROVEMENTS.md",
+              "ViewState": "AgIAACcBAAAAAAAAAIBJwCkBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2025-12-02T11:05:04.883Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "PTTConfigWriter.cs",
+              "DocumentMoniker": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\PTTConfigWriter.cs",
+              "RelativeDocumentMoniker": "PTTConfigWriter.cs",
+              "ToolTip": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\PTTConfigWriter.cs",
+              "RelativeToolTip": "PTTConfigWriter.cs",
+              "ViewState": "AgIAAAQDAAAAAAAAAEBVwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-02T11:02:40.748Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "AddExfilForm.cs",
+              "DocumentMoniker": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\AddExfilForm.cs",
+              "RelativeDocumentMoniker": "AddExfilForm.cs",
+              "ToolTip": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\AddExfilForm.cs",
+              "RelativeToolTip": "AddExfilForm.cs",
+              "ViewState": "AgIAAEcBAAAAAAAAAABgwEwBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-02T11:01:17.215Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "config.json5",
+              "DocumentMoniker": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\Templates\\Hybrid\\config.json5",
+              "RelativeDocumentMoniker": "Templates\\Hybrid\\config.json5",
+              "ToolTip": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\Templates\\Hybrid\\config.json5",
+              "RelativeToolTip": "Templates\\Hybrid\\config.json5",
+              "ViewState": "AgIAACoFAAAAAAAAAAAiwEMFAAALAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-12-02T10:50:54.043Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "DynamicMapConfigParser.cs",
+              "DocumentMoniker": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\DynamicMapConfigParser.cs",
+              "RelativeDocumentMoniker": "DynamicMapConfigParser.cs",
+              "ToolTip": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\DynamicMapConfigParser.cs",
+              "RelativeToolTip": "DynamicMapConfigParser.cs",
+              "ViewState": "AgIAAHQBAAAAAAAAAABRwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-02T08:58:01.793Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Customs_TarkovDev.jsonc",
+              "DocumentMoniker": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\DynamicMaps\\Maps\\Customs_TarkovDev\\Customs_TarkovDev.jsonc",
+              "RelativeDocumentMoniker": "DynamicMaps\\Maps\\Customs_TarkovDev\\Customs_TarkovDev.jsonc",
+              "ToolTip": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\DynamicMaps\\Maps\\Customs_TarkovDev\\Customs_TarkovDev.jsonc",
+              "RelativeToolTip": "DynamicMaps\\Maps\\Customs_TarkovDev\\Customs_TarkovDev.jsonc",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-12-02T08:55:43.738Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "MapVisualizationForm_Enhanced.cs",
+              "DocumentMoniker": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\MapVisualizationForm_Enhanced.cs",
+              "RelativeDocumentMoniker": "MapVisualizationForm_Enhanced.cs",
+              "ToolTip": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\MapVisualizationForm_Enhanced.cs",
+              "RelativeToolTip": "MapVisualizationForm_Enhanced.cs",
+              "ViewState": "AgIAANEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-02T08:49:55.419Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "PTTConfigManager.cs",
+              "DocumentMoniker": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\PTTConfigManager.cs",
+              "RelativeDocumentMoniker": "PTTConfigManager.cs",
+              "ToolTip": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\PTTConfigManager.cs",
+              "RelativeToolTip": "PTTConfigManager.cs",
+              "ViewState": "AgIAAMsDAAAAAAAAAEBVwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-02T08:37:27Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Form1.cs",
+              "DocumentMoniker": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\Form1.cs",
+              "RelativeDocumentMoniker": "Form1.cs",
+              "ToolTip": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\Form1.cs",
+              "RelativeToolTip": "Form1.cs",
+              "ViewState": "AgIAACsAAAAAAAAAAAApwEAAAABJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-02T08:25:23.753Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Form1.cs [Design]",
+              "DocumentMoniker": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\Form1.cs",
+              "RelativeDocumentMoniker": "Form1.cs",
+              "ToolTip": "F:\\temp\\Code Projects\\Git\\PTT-Config-Editor\\MP PTT Cleaned\\Form1.cs [Design]",
+              "RelativeToolTip": "Form1.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-02T08:11:56.651Z",
+              "EditorCaption": " [Design]"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
